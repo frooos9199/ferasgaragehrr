@@ -1,4 +1,3 @@
-
 // Git test: update check
 import React, { useState, useEffect } from 'react';
 
@@ -408,6 +407,29 @@ function MainContent() {
           </div>
         </div>
       </section>
+
+      {/* Show admin button only if ?admin=1 in URL */}
+      {window.location.search.includes('admin=1') && (
+        <div style={{ textAlign: 'center', margin: '2.5rem 0 1.5rem 0' }}>
+          <a href="/jobcard-admin" style={{
+            display: 'inline-block',
+            background: 'linear-gradient(90deg, #dc143c 60%, #ff1744 100%)',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: '1.1rem',
+            border: 'none',
+            borderRadius: 10,
+            padding: '1rem 2.5rem',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px #dc143c33',
+            letterSpacing: 1,
+            textDecoration: 'none',
+            transition: 'all 0.2s',
+          }}>
+            إدارة Job Cards
+          </a>
+        </div>
+      )}
 
       <style>{`
         @keyframes slideDown {

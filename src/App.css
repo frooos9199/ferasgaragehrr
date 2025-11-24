@@ -1,6 +1,8 @@
 .App {
   text-align: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+  min-height: 100vh;
 }
 
 .App-logo {
@@ -26,7 +28,7 @@
 }
 
 .App-link {
-  color: #61dafb;
+  color: #dc143c;
 }
 
 @keyframes App-logo-spin {
@@ -45,19 +47,30 @@ html {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #003399, #0074d9);
-  border-radius: 5px;
+  background: linear-gradient(135deg, #dc143c, #ff1744);
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #0074d9, #003399);
+  background: linear-gradient(135deg, #ff1744, #dc143c);
+}
+
+/* Selection color */
+::selection {
+  background: #dc143c;
+  color: #fff;
+}
+
+::-moz-selection {
+  background: #dc143c;
+  color: #fff;
 }
 

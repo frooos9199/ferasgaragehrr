@@ -4,29 +4,33 @@ import PrivacyPolicy from './PrivacyPolicy';
 import MainContent from './MainContent';
 import About from './About';
 import BusinessSubscription from './BusinessSubscription';
+import JobCardAdmin from './JobCardAdmin';
+import JobCardPublic from './JobCardPublic';
 
 const navCSS = `
-  .navbar-lmr { background: #003399; color: #fff; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: relative; z-index: 100; box-shadow: 0 2px 8px #00339922; }
-  .navbar-lmr .logo { font-size: 1.5rem; font-weight: bold; color: #ffd700; letter-spacing: 1px; text-decoration: none; }
-  .navbar-lmr .links { display: flex; gap: 2rem; align-items: center; }
-  .navbar-lmr .link { color: #fff; text-decoration: none; font-weight: 500; font-size: 1.08rem; padding: 0.5rem 1.1rem; border-radius: 5px; transition: background 0.2s, color 0.2s; }
-  .navbar-lmr .link.active { background: #0050b3; color: #fff; }
-  .navbar-lmr .link.privacy { color: #ffd700; text-decoration: underline; }
-  .navbar-lmr .burger { display: none; background: none; border: none; cursor: pointer; margin-left: 1rem; }
+  .navbar-lmr { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); color: #fff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(220,20,60,0.3); border-bottom: 2px solid #dc143c; }
+  .navbar-lmr .logo { font-size: 1.6rem; font-weight: 900; color: #dc143c; letter-spacing: 2px; text-decoration: none; text-transform: uppercase; text-shadow: 0 0 10px rgba(220,20,60,0.5); }
+  .navbar-lmr .links { display: flex; gap: 1.5rem; align-items: center; }
+  .navbar-lmr .link { color: #fff; text-decoration: none; font-weight: 600; font-size: 1.05rem; padding: 0.6rem 1.3rem; border-radius: 8px; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; border: 2px solid transparent; }
+  .navbar-lmr .link:hover { background: rgba(220,20,60,0.1); border-color: #dc143c; color: #dc143c; }
+  .navbar-lmr .link.active { background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%); color: #fff; border-color: #ff1744; box-shadow: 0 4px 15px rgba(220,20,60,0.4); }
+  .navbar-lmr .link.privacy { color: #dc143c; border-color: #dc143c; }
+  .navbar-lmr .burger { display: none; background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%); border: none; cursor: pointer; margin-left: 1rem; padding: 0.6rem 1rem; border-radius: 8px; }
   .navbar-lmr .burger svg { display: block; }
   .navbar-lmr .overlay { display: none; }
   .navbar-lmr .side-menu { display: none; }
   @media (max-width: 900px) {
     .navbar-lmr .links { display: none; }
     .navbar-lmr .burger { display: block; }
-    .navbar-lmr .overlay { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.45); z-index: 99; opacity: 1; transition: opacity 0.3s; }
+    .navbar-lmr .overlay { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 999; opacity: 1; transition: opacity 0.3s; backdrop-filter: blur(5px); }
     .navbar-lmr .overlay.closed { display: none; opacity: 0; }
-    .navbar-lmr .side-menu { display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; width: 260px; background: #003399; color: #fff; box-shadow: 2px 0 16px #00339933; padding: 2.5rem 1.2rem 1.2rem 1.2rem; gap: 1.2rem; z-index: 100; transform: translateX(-100%); transition: transform 0.3s; }
+    .navbar-lmr .side-menu { display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; width: 280px; background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0a 100%); color: #fff; box-shadow: 4px 0 30px rgba(220,20,60,0.4); padding: 2.5rem 1.5rem; gap: 1rem; z-index: 1000; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-right: 3px solid #dc143c; }
     .navbar-lmr .side-menu.open { transform: translateX(0); }
-    .navbar-lmr .side-menu .close-btn { align-self: flex-end; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; margin-bottom: 1.5rem; }
-    .navbar-lmr .side-menu .link { font-size: 1.15rem; padding: 0.7rem 0.5rem; color: #fff; }
-    .navbar-lmr .side-menu .link.active { background: #0050b3; color: #fff; }
-    .navbar-lmr .side-menu .link.privacy { color: #ffd700; }
+    .navbar-lmr .side-menu .close-btn { align-self: flex-end; background: #dc143c; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; margin-bottom: 2rem; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .navbar-lmr .side-menu .link { font-size: 1.1rem; padding: 0.9rem 1rem; color: #fff; border-radius: 8px; border: 2px solid transparent; }
+    .navbar-lmr .side-menu .link:hover { background: rgba(220,20,60,0.1); border-color: #dc143c; }
+    .navbar-lmr .side-menu .link.active { background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%); color: #fff; border-color: #ff1744; }
+    .navbar-lmr .side-menu .link.privacy { color: #dc143c; border-color: #dc143c; }
   }
 `;
 
@@ -79,15 +83,33 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <div style={{ fontFamily: 'Segoe UI, Arial, sans-serif', background: '#003399', color: '#fff', minHeight: '100vh' }}>
+      <div style={{ 
+        fontFamily: 'Segoe UI, Arial, sans-serif', 
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)', 
+        color: '#fff', 
+        minHeight: '100vh' 
+      }}>
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/about" element={<About />} />
           <Route path="/business" element={<BusinessSubscription />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/jobcard-admin" element={<JobCardAdmin />} />
+          <Route path="/jobcard/:id" element={<JobCardPublic />} />
         </Routes>
         {/* Footer */}
-        <footer style={{ background: 'linear-gradient(90deg, #003399 60%, #0074d9 100%)', color: '#fff', textAlign: 'center', padding: '1.2rem 0', marginTop: '2rem', fontWeight: 'bold', fontSize: '1.1rem', letterSpacing: '1px', boxShadow: '0 -2px 8px #00339922' }}>
+        <footer style={{ 
+          background: 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)', 
+          color: '#fff', 
+          textAlign: 'center', 
+          padding: '1.5rem 0', 
+          marginTop: '3rem', 
+          fontWeight: 'bold', 
+          fontSize: '1.1rem', 
+          letterSpacing: '1px', 
+          boxShadow: '0 -4px 20px rgba(220,20,60,0.4)',
+          borderTop: '2px solid rgba(220,20,60,0.5)'
+        }}>
           &copy; {new Date().getFullYear()} HOT ROD RACING (HRR) - Ford Specialist Garage
         </footer>
       </div>
