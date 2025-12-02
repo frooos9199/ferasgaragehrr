@@ -1,9 +1,11 @@
 import React from 'react';
-import { jobCards } from './jobCardData';
 import { useParams } from 'react-router-dom';
 
 function JobCardPublic() {
   const { id } = useParams();
+  // Load from localStorage instead of static array
+  const saved = localStorage.getItem('jobCards');
+  const jobCards = saved ? JSON.parse(saved) : [];
   const card = jobCards.find(c => c.id === id);
   if (!card) return <main style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Job Card not found.</main>;
   return (

@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import { jobCards, jobCardFields } from './jobCardData';
-import QRCode from 'qrcode.react';
+import React, { useState, useEffect } from 'react';
+import { jobCardFields } from './jobCardData';
+import { QRCodeSVG } from 'qrcode.react';
 
 function JobCardAdmin() {
-  const [cards, setCards] = useState(jobCards);
+  // Load cards from localStorage on initial load
+  const [cards, setCards] = useState(() => {
+    const saved = localStorage.getItem('jobCards');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [form, setForm] = useState({
     carNumber: '',
     vin: '',
@@ -16,6 +20,11 @@ function JobCardAdmin() {
     notes: '',
   });
   const [success, setSuccess] = useState(false);
+
+  // Save to localStorage whenever cards change
+  useEffect(() => {
+    localStorage.setItem('jobCards', JSON.stringify(cards));
+  }, [cards]);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -71,7 +80,7 @@ function JobCardAdmin() {
               <div style={{ marginTop: '0.7rem' }}>
                 <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.98rem' }}>QR Code:</span>
                 <div style={{ background: '#fff', display: 'inline-block', padding: 6, borderRadius: 8, marginLeft: 10 }}>
-                  <QRCode value={window.location.origin + '/jobcard/' + card.id} size={64} fgColor="#dc143c" bgColor="#fff" />
+                  <QRCodeSVG value={window.location.origin + '/jobcard/' + card.id} size={64} fgColor="#dc143c" bgColor="#fff" />
                 </div>
               </div>
             </div>
