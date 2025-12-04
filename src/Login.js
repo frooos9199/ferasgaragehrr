@@ -9,7 +9,7 @@ function Login({ onLogin }) {
   // Simple hardcoded credentials - يمكن تغييرها لاحقاً لقاعدة بيانات
   const ADMIN_CREDENTIALS = {
     username: 'admin',
-    password: 'hrr2025'
+    password: '9199'
   };
 
   function handleSubmit(e) {
