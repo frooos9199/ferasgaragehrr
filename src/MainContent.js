@@ -1,6 +1,5 @@
 // Git test: update check
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 function MainContent() {
   const [fadeIn, setFadeIn] = useState(false);
@@ -408,27 +407,6 @@ function MainContent() {
           </div>
         </div>
       </section>
-
-      {/* Job Card Admin Button */}
-      <div style={{ textAlign: 'center', margin: '2.5rem 0 1.5rem 0' }}>
-        <Link to="/jobcard-admin" style={{
-          display: 'inline-block',
-          background: 'linear-gradient(90deg, #dc143c 60%, #ff1744 100%)',
-          color: '#fff',
-          fontWeight: 'bold',
-          fontSize: '1.1rem',
-          border: 'none',
-          borderRadius: 10,
-          padding: '1rem 2.5rem',
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px #dc143c33',
-          letterSpacing: 1,
-          textDecoration: 'none',
-          transition: 'all 0.2s',
-        }}>
-          📋 Job Cards Management
-        </Link>
-      </div>
 
       <style>{`
         @keyframes slideDown {

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, useLocation, Navigate } from 'react-router-dom';
 import PrivacyPolicy from './PrivacyPolicy';
 import MainContent from './MainContent';
 import About from './About';
 import BusinessSubscription from './BusinessSubscription';
 import JobCardAdmin from './JobCardAdmin';
 import JobCardPublic from './JobCardPublic';
+import Login from './Login';
 
 const navCSS = `
   .navbar-lmr { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); color: #fff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(220,20,60,0.3); border-bottom: 2px solid #dc143c; }
@@ -34,7 +35,7 @@ const navCSS = `
   }
 `;
 
-function Navbar() {
+function Navbar({ isLoggedIn, onLogout }) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const menuRef = useRef();
@@ -42,6 +43,7 @@ function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/about', label: 'About' },
     { to: '/business', label: 'Business Subscription' },
+    { to: '/jobcard-admin', label: 'Workshop', highlight: false, protected: true },
     { to: '/privacy', label: 'Privacy Policy', highlight: true },
   ];
   // Close menu when clicking outside or on overlay
@@ -62,6 +64,33 @@ function Navbar() {
         {navLinks.map(link => (
           <Link key={link.to} to={link.to} className={`link${link.highlight ? ' privacy' : ''}${location.pathname === link.to ? ' active' : ''}`}>{link.label}</Link>
         ))}
+        {isLoggedIn && (
+          <button 
+            onClick={onLogout}
+            style={{
+              background: 'rgba(255,0,0,0.2)',
+              border: '2px solid rgba(255,0,0,0.5)',
+              color: '#ff6666',
+              padding: '0.6rem 1.3rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '1.05rem',
+              letterSpacing: '0.5px',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(255,0,0,0.3)';
+              e.target.style.borderColor = '#ff0000';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(255,0,0,0.2)';
+              e.target.style.borderColor = 'rgba(255,0,0,0.5)';
+            }}
+          >
+            🚪 LOGOUT
+          </button>
+        )}
       </div>
       <button className="burger" aria-label="Open menu" onClick={() => setOpen(true)}>
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect y="6" width="32" height="4" rx="2" fill="#ffd700"/><rect y="14" width="32" height="4" rx="2" fill="#ffd700"/><rect y="22" width="32" height="4" rx="2" fill="#ffd700"/></svg>
@@ -74,15 +103,70 @@ function Navbar() {
         {navLinks.map(link => (
           <Link key={link.to} to={link.to} className={`link${link.highlight ? ' privacy' : ''}${location.pathname === link.to ? ' active' : ''}`} onClick={() => setOpen(false)}>{link.label}</Link>
         ))}
+        {isLoggedIn && (
+          <button 
+            onClick={() => {
+              onLogout();
+              setOpen(false);
+            }}
+            style={{
+              background: 'rgba(255,0,0,0.2)',
+              border: '2px solid rgba(255,0,0,0.5)',
+              color: '#ff6666',
+              padding: '0.9rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              letterSpacing: '0.5px',
+              marginTop: '1rem',
+              width: '100%',
+              textAlign: 'left'
+            }}
+          >
+            🚪 LOGOUT
+          </button>
+        )}
       </div>
     </nav>
   );
 }
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // Check if admin is already logged in
+    const loggedIn = localStorage.getItem('hrrAdminLoggedIn');
+    const loginTime = localStorage.getItem('hrrAdminLoginTime');
+    
+    // Auto logout after 24 hours
+    if (loggedIn && loginTime) {
+      const hoursSinceLogin = (new Date() - new Date(loginTime)) / (1000 * 60 * 60);
+      if (hoursSinceLogin > 24) {
+        localStorage.removeItem('hrrAdminLoggedIn');
+        localStorage.removeItem('hrrAdminLoginTime');
+        return false;
+      }
+      return true;
+    }
+    return false;
+  });
+
+  const handleLogin = () => setIsLoggedIn(true);
+  
+  const handleLogout = () => {
+    localStorage.removeItem('hrrAdminLoggedIn');
+    localStorage.removeItem('hrrAdminLoginTime');
+    setIsLoggedIn(false);
+  };
+
+  // Protected Route Component
+  const ProtectedRoute = ({ children }) => {
+    return isLoggedIn ? children : <Navigate to="/login" replace />;
+  };
+
   return (
     <Router>
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <div style={{ 
         fontFamily: 'Segoe UI, Arial, sans-serif', 
         background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)', 
@@ -94,7 +178,12 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/business" element={<BusinessSubscription />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/jobcard-admin" element={<JobCardAdmin />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/jobcard-admin" element={
+            <ProtectedRoute>
+              <JobCardAdmin />
+            </ProtectedRoute>
+          } />
           <Route path="/jobcard/:id" element={<JobCardPublic />} />
         </Routes>
         {/* Footer */}
