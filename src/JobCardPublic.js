@@ -18,6 +18,11 @@ function JobCardPublic() {
           h1, h2, h3, strong { color: #00D9FF !important; }
           .no-print { display: none !important; }
           * { color: black !important; }
+          img { 
+            display: block !important; 
+            max-width: 100% !important;
+            page-break-inside: avoid !important;
+          }
         }
       `}</style>
       
