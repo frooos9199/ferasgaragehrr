@@ -10,21 +10,26 @@ function Gallery() {
   useEffect(() => {
     const fetchCompletedCars = async () => {
       try {
-        // Get all job cards and filter in JavaScript instead of Firestore
+        console.log('Fetching gallery data...');
         const q = query(collection(db, 'jobCards'));
         
         const snapshot = await getDocs(q);
+        console.log('Total documents:', snapshot.docs.length);
+        
         const carsData = snapshot.docs
           .map(doc => ({
             id: doc.id,
             ...doc.data()
           }))
-          .filter(car => 
-            // Only completed/delivered cars with images
-            (car.status === 'Completed' || car.status === 'Delivered') &&
-            car.images && 
-            car.images.length > 0
-          )
+          .filter(car => {
+            console.log('Checking car:', car.carNumber, 'Status:', car.status, 'Images:', car.images?.length || 0);
+            return (
+              // Only completed/delivered cars with images
+              (car.status === 'Completed' || car.status === 'Delivered') &&
+              car.images && 
+              car.images.length > 0
+            );
+          })
           .sort((a, b) => {
             // Sort by creation date, newest first
             const aTime = a.createdAt?.seconds || 0;
@@ -32,10 +37,13 @@ function Gallery() {
             return bTime - aTime;
           });
         
+        console.log('Filtered cars:', carsData.length);
         setCars(carsData);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching gallery:', error);
+        // Show error instead of infinite loading
+        setCars([]);
         setLoading(false);
       }
     };
@@ -52,7 +60,22 @@ function Gallery() {
   if (loading) {
     return (
       <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', padding: '2rem', color: '#fff', textAlign: 'center' }}>
-        <h2 style={{ color: '#00D9FF', marginTop: '4rem' }}>Loading Gallery...</h2>
+        <img 
+          src="/mustang-parts.png" 
+          alt="HRR Logo" 
+          style={{ 
+            width: 180, 
+            marginTop: '4rem',
+            marginBottom: '1.5rem',
+            borderRadius: '15px',
+            border: '2px solid #00D9FF',
+            padding: '15px',
+            background: 'rgba(26,26,46,0.8)',
+            boxShadow: '0 10px 30px rgba(0,217,255,0.4)'
+          }} 
+        />
+        <h2 style={{ color: '#00D9FF', marginTop: '2rem' }}>Loading Gallery...</h2>
+        <p style={{ color: '#888', marginTop: '1rem' }}>Fetching completed projects from database...</p>
       </main>
     );
   }
