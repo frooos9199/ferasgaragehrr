@@ -223,15 +223,21 @@ function Gallery() {
                 width: '100%', 
                 height: '250px', 
                 overflow: 'hidden',
-                position: 'relative'
+                position: 'relative',
+                background: '#0a0a0a'
               }}>
                 <img 
-                  src={car.images[0]} 
+                  src={car.images[0].data || car.images[0]} 
                   alt={`${car.make} ${car.model}`}
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover'
+                  }}
+                  onLoad={() => console.log('✅ Image loaded for:', car.carNumber)}
+                  onError={(e) => {
+                    console.error('❌ Image failed to load for:', car.carNumber);
+                    e.target.style.display = 'none';
                   }}
                 />
                 <div style={{
@@ -291,10 +297,10 @@ function Gallery() {
                         cursor: 'pointer',
                         position: 'relative'
                       }}
-                      onClick={() => window.open(img, '_blank')}
+                      onClick={() => window.open(img.data || img, '_blank')}
                     >
                       <img 
-                        src={img} 
+                        src={img.data || img} 
                         alt={`View ${idx + 1}`}
                         style={{
                           width: '100%',
