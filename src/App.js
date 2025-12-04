@@ -7,6 +7,7 @@ import BusinessSubscription from './BusinessSubscription';
 import JobCardAdmin from './JobCardAdmin';
 import JobCardPublic from './JobCardPublic';
 import Login from './Login';
+import Gallery from './Gallery';
 
 const navCSS = `
   .navbar-lmr { 
@@ -200,9 +201,10 @@ function Navbar({ isLoggedIn, onLogout }) {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/about', label: 'About' },
+    { to: '/gallery', label: 'Our Work', highlight: true },
     { to: '/business', label: 'Business Subscription' },
     { to: '/jobcard-admin', label: 'Workshop', highlight: false, protected: true },
-    { to: '/privacy', label: 'Privacy Policy', highlight: true },
+    { to: '/privacy', label: 'Privacy Policy', highlight: false },
   ];
   // Close menu when clicking outside or on overlay
   useEffect(() => {
@@ -343,6 +345,7 @@ function App() {
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/about" element={<About />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/business" element={<BusinessSubscription />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
