@@ -75,7 +75,7 @@ function JobCardPublic() {
             textAlign: 'center', 
             marginBottom: '1.5rem',
             background: statusColor + '22',
-            border: `3px solid ${statusColor}`,
+            border: `3px solid KD {statusColor}`,
             borderRadius: '12px',
             padding: '1rem',
             fontWeight: 900,
@@ -163,12 +163,12 @@ function JobCardPublic() {
               {card.parts.map((part, idx) => (
                 <div key={idx} style={{ fontSize: '0.9rem', color: '#fff', marginLeft: '1rem', marginBottom: '0.3rem', display: 'flex', justifyContent: 'space-between' }}>
                   <span>{part.name} × {part.qty}</span>
-                  <span style={{ color: '#10b981' }}>${(part.price * part.qty).toFixed(2)}</span>
+                  <span style={{ color: '#10b981' }}>KD {(part.price * part.qty).toFixed(2)}</span>
                 </div>
               ))}
               <div style={{ fontSize: '0.95rem', fontWeight: 'bold', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(16,185,129,0.3)', display: 'flex', justifyContent: 'space-between' }}>
                 <span>Parts Total:</span>
-                <span style={{ color: '#10b981' }}>${card.parts.reduce((sum, p) => sum + (p.price * p.qty), 0).toFixed(2)}</span>
+                <span style={{ color: '#10b981' }}>KD {card.parts.reduce((sum, p) => sum + (p.price * p.qty), 0).toFixed(2)}</span>
               </div>
             </div>
           )}
@@ -176,20 +176,20 @@ function JobCardPublic() {
           {card.laborCost > 0 && (
             <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
               <span><strong style={{ color: '#10b981' }}>Labor Cost:</strong></span>
-              <span style={{ color: '#fff', fontWeight: 'bold' }}>${parseFloat(card.laborCost).toFixed(2)}</span>
+              <span style={{ color: '#fff', fontWeight: 'bold' }}>KD {parseFloat(card.laborCost).toFixed(2)}</span>
             </div>
           )}
           
           {card.discount > 0 && (
             <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#f59e0b' }}>
               <span><strong>Discount:</strong></span>
-              <span style={{ fontWeight: 'bold' }}>-${parseFloat(card.discount).toFixed(2)}</span>
+              <span style={{ fontWeight: 'bold' }}>-KD {parseFloat(card.discount).toFixed(2)}</span>
             </div>
           )}
           
           <div style={{ borderTop: '2px solid rgba(16,185,129,0.5)', marginTop: '1rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 'bold' }}>
             <span style={{ color: '#10b981' }}>TOTAL:</span>
-            <span style={{ color: '#10b981' }}>${(() => {
+            <span style={{ color: '#10b981' }}>KD {(() => {
               const partsTotal = card.parts ? card.parts.reduce((sum, p) => sum + (p.price * p.qty), 0) : 0;
               const labor = parseFloat(card.laborCost) || 0;
               const disc = parseFloat(card.discount) || 0;
@@ -254,7 +254,7 @@ function JobCardPublic() {
                 onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <img src={img.data} alt={`Photo ${idx + 1}`} style={{ width: '100%', height: '150px', objectFit: 'cover', display: 'block' }} />
+                <img src={img.data} alt={`Photo KD {idx + 1}`} style={{ width: '100%', height: '150px', objectFit: 'cover', display: 'block' }} />
                 <div style={{ 
                   position: 'absolute', 
                   bottom: 0, 

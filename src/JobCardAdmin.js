@@ -181,13 +181,13 @@ function JobCardAdmin() {
     const maxImages = 10;
 
     if (form.images.length + files.length > maxImages) {
-      alert(`Maximum ${maxImages} images allowed`);
+      alert(`Maximum KD {maxImages} images allowed`);
       return;
     }
 
     files.forEach(file => {
       if (file.size > maxSize) {
-        alert(`${file.name} is too large. Max size is 2MB`);
+        alert(`KD {file.name} is too large. Max size is 2MB`);
         return;
       }
 
@@ -244,10 +244,10 @@ function JobCardAdmin() {
         'Owner Phone': card.ownerPhone,
         'Entry Date': card.entryDate || '',
         'Expected Delivery': card.expectedDelivery || '',
-        'Parts Total': `$${partsTotal.toFixed(2)}`,
-        'Labor Cost': `$${labor.toFixed(2)}`,
-        'Discount': `$${disc.toFixed(2)}`,
-        'Total Amount': `$${total.toFixed(2)}`,
+        'Parts Total': `KD KD {partsTotal.toFixed(2)}`,
+        'Labor Cost': `KD KD {labor.toFixed(2)}`,
+        'Discount': `KD KD {disc.toFixed(2)}`,
+        'Total Amount': `KD KD {total.toFixed(2)}`,
         'Issues': card.issues ? card.issues.join(', ') : '',
         'Fixed': card.fixed ? card.fixed.join(', ') : '',
         'Notes': card.notes || '',
@@ -265,7 +265,7 @@ function JobCardAdmin() {
     }, 10);
     ws['!cols'] = Array(Object.keys(exportData[0] || {}).length).fill({ wch: maxWidth });
     
-    const fileName = `HRR_JobCards_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `HRR_JobCards_KD {new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
   }
 
@@ -281,12 +281,12 @@ function JobCardAdmin() {
     // Date
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 22);
+    doc.text(`Generated: KD {new Date().toLocaleString()}`, 14, 22);
     
     // Statistics
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Total Cards: ${filteredCards.length} | Received: ${stats.received} | In Progress: ${stats.inProgress} | Completed: ${stats.completed}`, 14, 29);
+    doc.text(`Total Cards: KD {filteredCards.length} | Received: KD {stats.received} | In Progress: KD {stats.inProgress} | Completed: KD {stats.completed}`, 14, 29);
     
     // Table data
     const tableData = filteredCards.map(card => {
@@ -297,13 +297,13 @@ function JobCardAdmin() {
       
       return [
         card.carNumber,
-        `${card.make} ${card.model}`,
+        `KD {card.make} KD {card.model}`,
         card.year,
         card.status,
         card.ownerName,
         card.entryDate || '-',
         card.expectedDelivery || '-',
-        `$${total.toFixed(2)}`
+        `KD KD {total.toFixed(2)}`
       ];
     });
     
@@ -326,7 +326,7 @@ function JobCardAdmin() {
       }
     });
     
-    const fileName = `HRR_JobCards_${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `HRR_JobCards_KD {new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
   }
 
@@ -547,10 +547,10 @@ function JobCardAdmin() {
                       marginBottom: '0.5rem'
                     }}>
                       <div style={{ flex: 1, color: '#fff' }}>
-                        <strong>{part.name}</strong> - ${part.price} × {part.qty}
+                        <strong>{part.name}</strong> - KD {part.price} × {part.qty}
                       </div>
                       <div style={{ color: '#10b981', fontWeight: 'bold', marginRight: '1rem' }}>
-                        ${(part.price * part.qty).toFixed(2)}
+                        KD {(part.price * part.qty).toFixed(2)}
                       </div>
                       <button
                         type="button"
@@ -577,7 +577,7 @@ function JobCardAdmin() {
             <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: '1fr 1fr' }}>
               <div>
                 <label style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                  Labor Cost ($)
+                  Labor Cost (KD )
                 </label>
                 <input
                   type="number"
@@ -592,7 +592,7 @@ function JobCardAdmin() {
               </div>
               <div>
                 <label style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                  Discount ($)
+                  Discount (KD )
                 </label>
                 <input
                   type="number"
@@ -618,20 +618,20 @@ function JobCardAdmin() {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#fff' }}>
                   <span>Parts Total:</span>
-                  <span>${calculateInvoice().partsTotal.toFixed(2)}</span>
+                  <span>KD {calculateInvoice().partsTotal.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#fff' }}>
                   <span>Labor:</span>
-                  <span>${calculateInvoice().laborCost.toFixed(2)}</span>
+                  <span>KD {calculateInvoice().laborCost.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#fff' }}>
                   <span>Subtotal:</span>
-                  <span>${calculateInvoice().subtotal.toFixed(2)}</span>
+                  <span>KD {calculateInvoice().subtotal.toFixed(2)}</span>
                 </div>
                 {form.discount > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#ffa500' }}>
                     <span>Discount:</span>
-                    <span>-${calculateInvoice().discount.toFixed(2)}</span>
+                    <span>-KD {calculateInvoice().discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div style={{ 
@@ -645,7 +645,7 @@ function JobCardAdmin() {
                   color: '#10b981'
                 }}>
                   <span>TOTAL:</span>
-                  <span>${calculateInvoice().total.toFixed(2)}</span>
+                  <span>KD {calculateInvoice().total.toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -677,7 +677,7 @@ function JobCardAdmin() {
             <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.8rem' }}>
               {form.images.map((img, idx) => (
                 <div key={idx} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', border: '2px solid rgba(220,20,60,0.3)' }}>
-                  <img src={img.data} alt={`Upload ${idx + 1}`} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
+                  <img src={img.data} alt={`Upload KD {idx + 1}`} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
                   <button
                     type="button"
                     onClick={() => removeImage(idx)}
@@ -858,7 +858,7 @@ function JobCardAdmin() {
               const matchesStatus = filterStatus === 'all' || card.status === filterStatus;
               return matchesSearch && matchesModel && matchesStatus;
             });
-            return filtered.length !== cards.length ? `(${filtered.length} of ${cards.length})` : `(${cards.length})`;
+            return filtered.length !== cards.length ? `(KD {filtered.length} of KD {cards.length})` : `(KD {cards.length})`;
           })()}
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
@@ -906,7 +906,7 @@ function JobCardAdmin() {
                 </div>
                 <div style={{ 
                   background: statusColor + '33', 
-                  border: `2px solid ${statusColor}`, 
+                  border: `2px solid KD {statusColor}`, 
                   borderRadius: '8px', 
                   padding: '0.5rem 1rem', 
                   fontWeight: 'bold', 
@@ -981,7 +981,7 @@ function JobCardAdmin() {
                   </div>
                   {card.parts && card.parts.length > 0 && (
                     <div style={{ fontSize: '0.85rem', color: '#fff', marginBottom: '0.3rem' }}>
-                      <strong style={{ color: '#10b981' }}>Parts:</strong> ${card.parts.reduce((sum, p) => sum + (p.price * p.qty), 0).toFixed(2)}
+                      <strong style={{ color: '#10b981' }}>Parts:</strong> KD {card.parts.reduce((sum, p) => sum + (p.price * p.qty), 0).toFixed(2)}
                       <span style={{ marginLeft: '0.5rem', color: '#9ca3af', fontSize: '0.8rem' }}>
                         ({card.parts.length} item{card.parts.length !== 1 ? 's' : ''})
                       </span>
@@ -989,16 +989,16 @@ function JobCardAdmin() {
                   )}
                   {card.laborCost > 0 && (
                     <div style={{ fontSize: '0.85rem', color: '#fff', marginBottom: '0.3rem' }}>
-                      <strong style={{ color: '#10b981' }}>Labor:</strong> ${parseFloat(card.laborCost).toFixed(2)}
+                      <strong style={{ color: '#10b981' }}>Labor:</strong> KD {parseFloat(card.laborCost).toFixed(2)}
                     </div>
                   )}
                   {card.discount > 0 && (
                     <div style={{ fontSize: '0.85rem', color: '#f59e0b', marginBottom: '0.3rem' }}>
-                      <strong>Discount:</strong> -${parseFloat(card.discount).toFixed(2)}
+                      <strong>Discount:</strong> -KD {parseFloat(card.discount).toFixed(2)}
                     </div>
                   )}
                   <div style={{ borderTop: '1px solid rgba(16,185,129,0.3)', marginTop: '0.5rem', paddingTop: '0.5rem', fontSize: '0.95rem', color: '#10b981', fontWeight: 'bold' }}>
-                    TOTAL: ${(() => {
+                    TOTAL: KD {(() => {
                       const partsTotal = card.parts ? card.parts.reduce((sum, p) => sum + (p.price * p.qty), 0) : 0;
                       const labor = parseFloat(card.laborCost) || 0;
                       const disc = parseFloat(card.discount) || 0;
@@ -1047,7 +1047,7 @@ function JobCardAdmin() {
                       <div key={idx} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', border: '2px solid rgba(220,20,60,0.3)', cursor: 'pointer' }}
                         onClick={() => window.open(img.data, '_blank')}
                       >
-                        <img src={img.data} alt={`Photo ${idx + 1}`} style={{ width: '100%', height: '100px', objectFit: 'cover', display: 'block' }} />
+                        <img src={img.data} alt={`Photo KD {idx + 1}`} style={{ width: '100%', height: '100px', objectFit: 'cover', display: 'block' }} />
                         <div style={{ 
                           position: 'absolute', 
                           bottom: 0, 
@@ -1090,7 +1090,7 @@ function JobCardAdmin() {
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                 <button
-                  onClick={() => window.open(`/jobcard/${card.id}`, '_blank')}
+                  onClick={() => window.open(`/jobcard/KD {card.id}`, '_blank')}
                   style={{
                     flex: '1',
                     minWidth: '120px',
