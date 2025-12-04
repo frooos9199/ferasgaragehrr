@@ -55,6 +55,20 @@ function JobCardAdmin() {
     }
   };
 
+  // Filter cards based on search and filters
+  const filteredCards = cards.filter(card => {
+    const searchMatch = 
+      card.carNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.vin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.ownerPhone.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const modelMatch = filterModel === 'all' || card.model === filterModel;
+    const statusMatch = filterStatus === 'all' || card.status === filterStatus;
+    
+    return searchMatch && modelMatch && statusMatch;
+  });
+
   // Save to localStorage whenever cards change
   useEffect(() => {
     localStorage.setItem('jobCards', JSON.stringify(cards));
