@@ -6,7 +6,8 @@ function JobCardPublic() {
   // Load from localStorage instead of static array
   const saved = localStorage.getItem('jobCards');
   const jobCards = saved ? JSON.parse(saved) : [];
-  const card = jobCards.find(c => c.id === id);
+  // Convert id to number for comparison since localStorage stores numbers but URL params are strings
+  const card = jobCards.find(c => c.id === parseInt(id));
   if (!card) return <main style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Job Card not found.</main>;
   
   return (
