@@ -162,6 +162,32 @@ function Gallery() {
         ))}
       </div>
 
+      {/* Empty State */}
+      {filteredCars.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '4rem 2rem',
+          maxWidth: '600px',
+          margin: '2rem auto',
+          background: 'rgba(26,26,46,0.8)',
+          borderRadius: '20px',
+          border: '2px solid #00D9FF33'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔧</div>
+          <h2 style={{ color: '#00D9FF', marginBottom: '1rem' }}>No Completed Projects Yet</h2>
+          <p style={{ color: '#999', lineHeight: '1.6' }}>
+            {cars.length === 0 ? (
+              <>We haven't completed any projects yet. Check back soon to see our Ford specialist work!</>
+            ) : (
+              <>No {filter === 'all' ? 'projects' : filter + ' projects'} to display. Try a different filter!</>
+            )}
+          </p>
+          <p style={{ color: '#FFD700', marginTop: '1.5rem', fontSize: '0.9rem' }}>
+            💡 To showcase work here: Complete a Job Card → Upload images → Mark as "Completed"
+          </p>
+        </div>
+      )}
+
       {/* Gallery Grid */}
       <div style={{
         display: 'grid',
