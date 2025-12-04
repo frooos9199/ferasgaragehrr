@@ -355,16 +355,16 @@ function App() {
         </Routes>
         {/* Footer */}
         <footer style={{ 
-          background: 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)', 
-          color: '#fff', 
+          background: 'linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%)', 
+          color: '#000', 
           textAlign: 'center', 
           padding: '1.5rem 0', 
           marginTop: '3rem', 
           fontWeight: 'bold', 
           fontSize: '1.1rem', 
           letterSpacing: '1px', 
-          boxShadow: '0 -4px 20px rgba(220,20,60,0.4)',
-          borderTop: '2px solid rgba(220,20,60,0.5)'
+          boxShadow: '0 -4px 20px rgba(0,217,255,0.4)',
+          borderTop: '3px solid #FFD700'
         }}>
           &copy; {new Date().getFullYear()} HOT ROD RACING (HRR) - Ford Specialist Garage
         </footer>
