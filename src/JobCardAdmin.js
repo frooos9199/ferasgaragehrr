@@ -3,13 +3,13 @@ import { QRCodeSVG } from 'qrcode.react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { db } from './firebase';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 
 function JobCardAdmin() {
-  // Load cards from localStorage on initial load
-  const [cards, setCards] = useState(() => {
-    const saved = localStorage.getItem('jobCards');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Load cards from Firestore with real-time updates
+  const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     carNumber: '',
     vin: '',
@@ -69,52 +69,62 @@ function JobCardAdmin() {
     return searchMatch && modelMatch && statusMatch;
   });
 
-  // Save to localStorage whenever cards change
+  // Real-time listener for Firestore
   useEffect(() => {
-    localStorage.setItem('jobCards', JSON.stringify(cards));
-  }, [cards]);
+    const q = query(collection(db, 'jobCards'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const cardsData = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+      }));
+      setCards(cardsData);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching cards:', error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     
-    if (editingId) {
-      // Update existing card
-      const updatedCards = cards.map(card => 
-        card.id === editingId 
-          ? {
-              ...form,
-              id: editingId,
-              year: Number(form.year),
-              issues: form.issues.split(',').map(s => s.trim()).filter(Boolean),
-              fixed: form.fixed.split(',').map(s => s.trim()).filter(Boolean),
-              createdAt: card.createdAt,
-              updatedAt: new Date().toISOString(),
-            }
-          : card
-      );
-      setCards(updatedCards);
-      setEditingId(null);
-    } else {
-      // Create new card
-      const newCard = {
-        ...form,
-        id: Date.now().toString(),
-        year: Number(form.year),
-        issues: form.issues.split(',').map(s => s.trim()).filter(Boolean),
-        fixed: form.fixed.split(',').map(s => s.trim()).filter(Boolean),
-        createdAt: new Date().toISOString(),
-      };
-      setCards([newCard, ...cards]);
+    try {
+      if (editingId) {
+        // Update existing card in Firestore
+        const cardRef = doc(db, 'jobCards', editingId);
+        await updateDoc(cardRef, {
+          ...form,
+          year: Number(form.year),
+          issues: form.issues.split(',').map(s => s.trim()).filter(Boolean),
+          fixed: form.fixed.split(',').map(s => s.trim()).filter(Boolean),
+          updatedAt: serverTimestamp(),
+        });
+        setEditingId(null);
+      } else {
+        // Create new card in Firestore
+        await addDoc(collection(db, 'jobCards'), {
+          ...form,
+          year: Number(form.year),
+          issues: form.issues.split(',').map(s => s.trim()).filter(Boolean),
+          fixed: form.fixed.split(',').map(s => s.trim()).filter(Boolean),
+          createdAt: serverTimestamp(),
+        });
+      }
+      
+      setForm({ carNumber: '', vin: '', make: 'Ford', model: '', year: '', specs: '', ownerName: '', ownerPhone: '', issues: '', fixed: '', notes: '', status: 'Received', entryDate: new Date().toISOString().split('T')[0], expectedDelivery: '', parts: [], laborCost: 0, discount: 0, images: [] });
+      setShowInvoice(false);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (error) {
+      console.error('Error saving Job Card:', error);
+      alert('Error saving Job Card. Please try again.');
     }
-    
-    setForm({ carNumber: '', vin: '', make: 'Ford', model: '', year: '', specs: '', ownerName: '', ownerPhone: '', issues: '', fixed: '', notes: '', status: 'Received', entryDate: new Date().toISOString().split('T')[0], expectedDelivery: '', parts: [], laborCost: 0, discount: 0, images: [] });
-    setShowInvoice(false);
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 2000);
   }
 
   function handleEdit(card) {
@@ -151,9 +161,14 @@ function JobCardAdmin() {
     setShowInvoice(false);
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (window.confirm('Are you sure you want to delete this Job Card?')) {
-      setCards(cards.filter(card => card.id !== id));
+      try {
+        await deleteDoc(doc(db, 'jobCards', id));
+      } catch (error) {
+        console.error('Error deleting Job Card:', error);
+        alert('Error deleting Job Card. Please try again.');
+      }
     }
   }
 
@@ -330,8 +345,83 @@ function JobCardAdmin() {
     doc.save(fileName);
   }
 
+  // Migration function: Move localStorage data to Firestore
+  async function migrateFromLocalStorage() {
+    if (!window.confirm('This will import all Job Cards from localStorage to Firebase. Continue?')) return;
+    
+    try {
+      const saved = localStorage.getItem('jobCards');
+      if (!saved) {
+        alert('No data found in localStorage.');
+        return;
+      }
+
+      const localCards = JSON.parse(saved);
+      if (localCards.length === 0) {
+        alert('No Job Cards to migrate.');
+        return;
+      }
+
+      let imported = 0;
+      for (const card of localCards) {
+        // Remove the old id field since Firestore will create new ones
+        const { id, ...cardData } = card;
+        await addDoc(collection(db, 'jobCards'), {
+          ...cardData,
+          createdAt: card.createdAt ? new Date(card.createdAt) : serverTimestamp(),
+          updatedAt: card.updatedAt ? new Date(card.updatedAt) : null,
+        });
+        imported++;
+      }
+
+      alert(`Successfully imported ${imported} Job Cards to Firebase!`);
+      // Optional: Clear localStorage after successful migration
+      if (window.confirm('Migration complete! Clear localStorage data?')) {
+        localStorage.removeItem('jobCards');
+      }
+    } catch (error) {
+      console.error('Migration error:', error);
+      alert('Error during migration: ' + error.message);
+    }
+  }
+
+  if (loading) {
+    return (
+      <main style={{ maxWidth: 900, margin: '2rem auto', background: 'rgba(26,26,46,0.95)', borderRadius: 18, boxShadow: '0 8px 32px #00D9FF44', padding: '2.5rem 1.5rem', color: '#fff', textAlign: 'center' }}>
+        <h2 style={{ color: '#00D9FF', marginTop: '4rem' }}>Loading...</h2>
+        <p style={{ color: '#FF6B00' }}>Connecting to Firebase...</p>
+      </main>
+    );
+  }
+
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', background: 'rgba(26,26,46,0.95)', borderRadius: 18, boxShadow: '0 8px 32px #00D9FF44', padding: '2.5rem 1.5rem', color: '#fff' }}>
+      
+      {/* Migration Button - Only show if localStorage has data */}
+      {localStorage.getItem('jobCards') && JSON.parse(localStorage.getItem('jobCards')).length > 0 && (
+        <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', background: 'rgba(255,107,0,0.1)', borderRadius: '8px', border: '1px solid #FF6B00' }}>
+          <p style={{ color: '#FFD700', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            ⚠️ Found {JSON.parse(localStorage.getItem('jobCards')).length} Job Cards in old storage
+          </p>
+          <button
+            onClick={migrateFromLocalStorage}
+            style={{
+              background: 'linear-gradient(135deg, #FF6B00 0%, #FFD700 100%)',
+              color: '#000',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.7rem 1.5rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              boxShadow: '0 4px 15px rgba(255,107,0,0.4)'
+            }}
+          >
+            🔄 Migrate to Firebase
+          </button>
+        </div>
+      )}
+
       {/* Logo */}
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <img 

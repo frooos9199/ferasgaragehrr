@@ -1,14 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { db } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 function JobCardPublic() {
   const { id } = useParams();
-  // Load from localStorage instead of static array
-  const saved = localStorage.getItem('jobCards');
-  const jobCards = saved ? JSON.parse(saved) : [];
-  // Convert id to number for comparison since localStorage stores numbers but URL params are strings
-  const card = jobCards.find(c => c.id === parseInt(id));
-  if (!card) return <main style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Job Card not found.</main>;
+  const [card, setCard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const fetchCard = async () => {
+      try {
+        const docRef = doc(db, 'jobCards', id);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          setCard({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          setNotFound(true);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching card:', error);
+        setNotFound(true);
+        setLoading(false);
+      }
+    };
+
+    fetchCard();
+  }, [id]);
+
+  if (loading) return <main style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Loading...</main>;
+  if (notFound || !card) return <main style={{ color: '#fff', textAlign: 'center', marginTop: '4rem' }}>Job Card not found.</main>;
   
   return (
     <>
