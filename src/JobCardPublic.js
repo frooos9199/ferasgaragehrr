@@ -13,15 +13,36 @@ function JobCardPublic() {
     <>
       <style>{`
         @media print {
-          body { background: white !important; }
-          main { background: white !important; box-shadow: none !important; color: black !important; }
+          body { 
+            background: white !important; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          main { 
+            background: white !important; 
+            box-shadow: none !important; 
+            color: black !important; 
+          }
           h1, h2, h3, strong { color: #00D9FF !important; }
           .no-print { display: none !important; }
           * { color: black !important; }
+          
+          /* Force images to print */
           img { 
             display: block !important; 
             max-width: 100% !important;
             page-break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+          
+          /* Gallery grid for print */
+          div[style*="grid"] img {
+            width: 150px !important;
+            height: 150px !important;
+            object-fit: cover !important;
           }
         }
       `}</style>
