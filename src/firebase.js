@@ -13,12 +13,31 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
+// Debug: Log config in development
+if (process.env.NODE_ENV === 'development') {
+  console.log('Firebase Config:', {
+    apiKey: firebaseConfig.apiKey ? '✓ Set' : '✗ Missing',
+    authDomain: firebaseConfig.authDomain ? '✓ Set' : '✗ Missing',
+    projectId: firebaseConfig.projectId ? '✓ Set' : '✗ Missing',
+    storageBucket: firebaseConfig.storageBucket ? '✓ Set' : '✗ Missing',
+    messagingSenderId: firebaseConfig.messagingSenderId ? '✓ Set' : '✗ Missing',
+    appId: firebaseConfig.appId ? '✓ Set' : '✗ Missing',
+  });
+}
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app, db, storage, auth;
 
-// Initialize services
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const auth = getAuth(app);
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  storage = getStorage(app);
+  auth = getAuth(app);
+  console.log('✅ Firebase initialized successfully');
+} catch (error) {
+  console.error('❌ Firebase initialization error:', error);
+  throw error;
+}
 
+export { db, storage, auth };
 export default app;

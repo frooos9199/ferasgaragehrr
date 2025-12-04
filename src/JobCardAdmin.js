@@ -1180,7 +1180,7 @@ function JobCardAdmin() {
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                 <button
-                  onClick={() => window.open(`/jobcard/KD {card.id}`, '_blank')}
+                  onClick={() => window.open(`/jobcard/${card.id}`, '_blank')}
                   style={{
                     flex: '1',
                     minWidth: '120px',
@@ -1198,7 +1198,53 @@ function JobCardAdmin() {
                   onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
                   onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
                 >
-                  🖨️ Print
+                  👁️ View Public
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const message = `مرحباً ${card.ownerName || 'عزيزي العميل'} 👋\n\n` +
+                      `Job Card جاهز لسيارتك:\n` +
+                      `🚗 ${card.make} ${card.model} ${card.year || ''}\n` +
+                      `🔢 رقم اللوحة: ${card.carNumber}\n\n` +
+                      `📋 الحالة: ${card.status}\n` +
+                      `📅 تاريخ التسليم المتوقع: ${card.expectedDelivery || 'قريباً'}\n\n` +
+                      `🔗 اضغط على الرابط لمشاهدة التفاصيل الكاملة:\n` +
+                      `${window.location.origin}/jobcard/${card.id}\n\n` +
+                      `ستجد في الرابط:\n` +
+                      `✅ تفاصيل السيارة والأعطال\n` +
+                      `✅ الإصلاحات المنجزة\n` +
+                      `✅ قطع الغيار المستخدمة\n` +
+                      `✅ الفاتورة التفصيلية\n` +
+                      `✅ صور السيارة قبل وبعد\n` +
+                      `✅ إمكانية الطباعة\n\n` +
+                      `──────────────────\n` +
+                      `🏁 HOT ROD RACING (HRR)\n` +
+                      `متخصصون في سيارات فورد\n` +
+                      `📞 للاستفسار: +965 50540999\n` +
+                      `🌐 www.q8hrr.com`;
+                    
+                    const whatsappUrl = `https://wa.me/${card.ownerPhone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                  }}
+                  style={{
+                    flex: '1',
+                    minWidth: '120px',
+                    background: 'linear-gradient(90deg, #25D366 0%, #128C7E 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.7rem 1.2rem',
+                    fontWeight: 'bold',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(37,211,102,0.3)',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  📱 إرسال واتساب
                 </button>
                 
                 <button
