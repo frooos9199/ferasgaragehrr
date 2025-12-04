@@ -13,7 +13,7 @@ function PrivacyPolicy() {
       color: '#fff'
     }}>
       <h1 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '2.3rem', 
         marginBottom: '1.5rem', 
@@ -29,11 +29,11 @@ function PrivacyPolicy() {
         marginBottom: '1.5rem',
         lineHeight: '1.7'
       }}>
-        At <strong style={{ color: '#dc143c' }}>HOT ROD RACING (HRR)</strong>, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
+        At <strong style={{ color: '#00D9FF' }}>HOT ROD RACING (HRR)</strong>, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
       </p>
       
       <h2 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '1.4rem', 
         marginTop: '2rem',
@@ -56,7 +56,7 @@ function PrivacyPolicy() {
       </ul>
       
       <h2 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '1.4rem', 
         marginTop: '2rem',
@@ -79,7 +79,7 @@ function PrivacyPolicy() {
       </ul>
       
       <h2 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '1.4rem', 
         marginTop: '2rem',
@@ -99,7 +99,7 @@ function PrivacyPolicy() {
       </p>
       
       <h2 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '1.4rem', 
         marginTop: '2rem',
@@ -118,10 +118,10 @@ function PrivacyPolicy() {
         <a 
           href="https://wa.me/96550540999" 
           style={{ 
-            color: '#dc143c', 
+            color: '#00D9FF', 
             textDecoration: 'none',
             fontWeight: 'bold',
-            borderBottom: '2px solid #dc143c',
+            borderBottom: '2px solid #00D9FF',
             transition: 'all 0.3s'
           }}
         >

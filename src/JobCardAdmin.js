@@ -331,7 +331,7 @@ function JobCardAdmin() {
   }
 
   return (
-    <main style={{ maxWidth: 900, margin: '2rem auto', background: 'rgba(26,26,46,0.95)', borderRadius: 18, boxShadow: '0 8px 32px #dc143c44', padding: '2.5rem 1.5rem', color: '#fff' }}>
+    <main style={{ maxWidth: 900, margin: '2rem auto', background: 'rgba(26,26,46,0.95)', borderRadius: 18, boxShadow: '0 8px 32px #00D9FF44', padding: '2.5rem 1.5rem', color: '#fff' }}>
       {/* Logo */}
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <img 
@@ -340,14 +340,14 @@ function JobCardAdmin() {
           style={{ 
             width: 150, 
             borderRadius: '15px',
-            border: '2px solid #dc143c',
+            border: '2px solid #00D9FF',
             padding: '10px',
             background: 'rgba(26,26,46,0.8)',
             boxShadow: '0 10px 30px rgba(220,20,60,0.4)'
           }} 
         />
       </div>
-      <h1 style={{ color: '#dc143c', fontWeight: 900, fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', letterSpacing: 2 }}>
+      <h1 style={{ color: '#00D9FF', fontWeight: 900, fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', letterSpacing: 2 }}>
         {editingId ? '✏️ Edit Job Card' : 'Workshop Dashboard'}
       </h1>
 
@@ -356,7 +356,7 @@ function JobCardAdmin() {
         <div style={{ marginBottom: '2rem' }}>
           <h2 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '1rem', fontWeight: 700 }}>📊 Statistics</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div style={{ background: 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)', borderRadius: '12px', padding: '1.2rem', textAlign: 'center', boxShadow: '0 4px 12px rgba(220,20,60,0.3)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%)', borderRadius: '12px', padding: '1.2rem', textAlign: 'center', boxShadow: '0 4px 12px rgba(220,20,60,0.3)' }}>
               <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>{stats.total}</div>
               <div style={{ fontSize: '0.9rem', color: '#fff', marginTop: '0.3rem', fontWeight: 600 }}>Total Cars</div>
             </div>
@@ -391,7 +391,7 @@ function JobCardAdmin() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
             {Object.entries(stats.byModel).map(([model, count]) => (
               <div key={model} style={{ background: 'rgba(220,20,60,0.1)', border: '2px solid rgba(220,20,60,0.3)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#dc143c' }}>{count}</div>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#00D9FF' }}>{count}</div>
                 <div style={{ fontSize: '0.9rem', color: '#fff', marginTop: '0.3rem' }}>{model}</div>
               </div>
             ))}
@@ -556,7 +556,7 @@ function JobCardAdmin() {
                         type="button"
                         onClick={() => removePart(index)}
                         style={{
-                          background: '#dc143c',
+                          background: '#00D9FF',
                           color: '#fff',
                           border: 'none',
                           borderRadius: '6px',
@@ -654,7 +654,7 @@ function JobCardAdmin() {
         
         {/* Image Upload Section */}
         <div style={{ marginBottom: '2rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#dc143c', fontSize: '1rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#00D9FF', fontSize: '1rem' }}>
             📸 Vehicle Photos (Max 10 images, 2MB each)
           </label>
           <input
@@ -666,7 +666,7 @@ function JobCardAdmin() {
               width: '100%',
               padding: '0.8rem',
               borderRadius: 8,
-              border: '2px dashed #dc143c',
+              border: '2px dashed #00D9FF',
               background: 'rgba(220,20,60,0.05)',
               color: '#fff',
               cursor: 'pointer',
@@ -685,7 +685,7 @@ function JobCardAdmin() {
                       position: 'absolute',
                       top: 4,
                       right: 4,
-                      background: '#dc143c',
+                      background: '#00D9FF',
                       color: '#fff',
                       border: 'none',
                       borderRadius: '50%',
@@ -729,7 +729,7 @@ function JobCardAdmin() {
         <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
           <button type="submit" style={{ 
             flex: 1,
-            background: editingId ? 'linear-gradient(90deg, #ffa500 60%, #ff8c00 100%)' : 'linear-gradient(90deg, #dc143c 60%, #ff1744 100%)', 
+            background: editingId ? 'linear-gradient(90deg, #ffa500 60%, #ff8c00 100%)' : 'linear-gradient(90deg, #00D9FF 60%, #FF6B00 100%)', 
             color: '#fff', 
             fontWeight: 'bold', 
             fontSize: '1.1rem', 
@@ -766,7 +766,7 @@ function JobCardAdmin() {
           )}
         </div>
         
-        {success && <div style={{ color: '#fff', background: editingId ? '#ffa500' : '#dc143c', borderRadius: 8, padding: '0.7rem', textAlign: 'center', fontWeight: 'bold' }}>
+        {success && <div style={{ color: '#fff', background: editingId ? '#ffa500' : '#00D9FF', borderRadius: 8, padding: '0.7rem', textAlign: 'center', fontWeight: 'bold' }}>
           {editingId ? 'Job Card Updated!' : 'Job Card Added!'}
         </div>}
       </form>
@@ -800,7 +800,7 @@ function JobCardAdmin() {
               onClick={exportToPDF}
               disabled={filteredCards.length === 0}
               style={{
-                background: filteredCards.length === 0 ? '#555' : 'linear-gradient(135deg, #dc143c, #ff1744)',
+                background: filteredCards.length === 0 ? '#555' : 'linear-gradient(135deg, #00D9FF, #FF6B00)',
                 color: '#fff',
                 border: 'none',
                 padding: '0.6rem 1.2rem',
@@ -893,13 +893,13 @@ function JobCardAdmin() {
               'Completed': '#10b981',
               'Delivered': '#6366f1'
             };
-            const statusColor = statusColors[card.status] || '#dc143c';
+            const statusColor = statusColors[card.status] || '#00D9FF';
             
             return (
-            <div key={card.id} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: '1.5rem', border: '1.5px solid #dc143c55', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+            <div key={card.id} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: '1.5rem', border: '1.5px solid #00D9FF55', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 900, fontSize: '1.3rem', color: '#dc143c', marginBottom: '0.3rem' }}>
+                  <div style={{ fontWeight: 900, fontSize: '1.3rem', color: '#00D9FF', marginBottom: '0.3rem' }}>
                     🏎️ Ford {card.model} {card.year}
                   </div>
                   <div style={{ fontSize: '0.95rem', color: '#aaa' }}>Plate: {card.carNumber} | VIN: {card.vin}</div>
@@ -964,12 +964,12 @@ function JobCardAdmin() {
               )}
               
               {/* Owner Info */}
-              <div style={{ background: 'rgba(220,20,60,0.1)', borderLeft: '3px solid #dc143c', padding: '0.8rem', marginBottom: '1rem', borderRadius: '4px' }}>
+              <div style={{ background: 'rgba(220,20,60,0.1)', borderLeft: '3px solid #00D9FF', padding: '0.8rem', marginBottom: '1rem', borderRadius: '4px' }}>
                 <div style={{ fontSize: '0.95rem', color: '#fff' }}>
-                  <strong style={{ color: '#dc143c' }}>👤 Owner:</strong> {card.ownerName}
+                  <strong style={{ color: '#00D9FF' }}>👤 Owner:</strong> {card.ownerName}
                 </div>
                 <div style={{ fontSize: '0.95rem', color: '#fff' }}>
-                  <strong style={{ color: '#dc143c' }}>📞 Phone:</strong> {card.ownerPhone}
+                  <strong style={{ color: '#00D9FF' }}>📞 Phone:</strong> {card.ownerPhone}
                 </div>
               </div>
               
@@ -1011,14 +1011,14 @@ function JobCardAdmin() {
               {/* Specs */}
               {card.specs && (
                 <div style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '0.8rem' }}>
-                  <strong style={{ color: '#dc143c' }}>⚙️ Specs:</strong> {card.specs}
+                  <strong style={{ color: '#00D9FF' }}>⚙️ Specs:</strong> {card.specs}
                 </div>
               )}
               
               {/* Issues */}
               {card.issues && card.issues.length > 0 && (
                 <div style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '0.8rem' }}>
-                  <strong style={{ color: '#ff1744' }}>⚠️ Issues:</strong> {card.issues.join(', ')}
+                  <strong style={{ color: '#FF6B00' }}>⚠️ Issues:</strong> {card.issues.join(', ')}
                 </div>
               )}
               
@@ -1039,7 +1039,7 @@ function JobCardAdmin() {
               {/* Image Gallery */}
               {card.images && card.images.length > 0 && (
                 <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ fontSize: '0.95rem', color: '#dc143c', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                  <div style={{ fontSize: '0.95rem', color: '#00D9FF', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                     📸 Vehicle Photos ({card.images.length})
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.5rem' }}>
@@ -1138,7 +1138,7 @@ function JobCardAdmin() {
                   style={{
                     flex: '1',
                     minWidth: '120px',
-                    background: 'linear-gradient(90deg, #dc143c 60%, #ff1744 100%)',
+                    background: 'linear-gradient(90deg, #00D9FF 60%, #FF6B00 100%)',
                     color: '#fff',
                     border: 'none',
                     borderRadius: '8px',
@@ -1159,7 +1159,7 @@ function JobCardAdmin() {
               <div style={{ marginTop: '0.7rem' }}>
                 <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.98rem' }}>QR Code:</span>
                 <div style={{ background: '#fff', display: 'inline-block', padding: 6, borderRadius: 8, marginLeft: 10 }}>
-                  <QRCodeSVG value={window.location.origin + '/jobcard/' + card.id} size={64} fgColor="#dc143c" bgColor="#fff" />
+                  <QRCodeSVG value={window.location.origin + '/jobcard/' + card.id} size={64} fgColor="#00D9FF" bgColor="#fff" />
                 </div>
               </div>
             </div>
@@ -1175,7 +1175,7 @@ const inputStyle = {
   width: '100%',
   padding: '0.7rem',
   borderRadius: 8,
-  border: '1.5px solid #dc143c',
+  border: '1.5px solid #00D9FF',
   fontSize: '1rem',
   background: 'rgba(255,255,255,0.08)',
   color: '#fff',

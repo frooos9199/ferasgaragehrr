@@ -13,7 +13,7 @@ function About() {
       color: '#fff'
     }}>
       <h1 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '2.5rem', 
         marginBottom: '1.5rem', 
@@ -30,7 +30,7 @@ function About() {
         lineHeight: 1.8 
       }}>
         <p style={{ marginBottom: '1.5rem' }}>
-          <strong style={{ color: '#dc143c' }}>Firas Al-Otaibi</strong> is a Ford specialist and the founder of HOT ROD RACING (HRR) in Kuwait. With over 19 years of hands-on experience, Firas has built a reputation for excellence in Ford programming, diagnostics, and performance upgrades. His passion for cars and commitment to quality service have made HRR a trusted destination for Ford owners and companies alike.
+          <strong style={{ color: '#00D9FF' }}>Firas Al-Otaibi</strong> is a Ford specialist and the founder of HOT ROD RACING (HRR) in Kuwait. With over 19 years of hands-on experience, Firas has built a reputation for excellence in Ford programming, diagnostics, and performance upgrades. His passion for cars and commitment to quality service have made HRR a trusted destination for Ford owners and companies alike.
         </p>
         <p style={{ marginBottom: '1.5rem' }}>
           HRR offers advanced solutions for all Ford models, including ECU programming, key programming, troubleshooting, and performance tuning. Firas and his team use the latest technology and tools to ensure every vehicle receives the best care possible.
@@ -40,7 +40,7 @@ function About() {
         </p>
       </section>
       <section style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '1.2rem', 
         textAlign: 'center',
@@ -51,11 +51,11 @@ function About() {
       }}>
         <div style={{ marginBottom: '1rem', fontSize: '1.1rem', color: '#fff' }}>
           WhatsApp: <a href="https://wa.me/96550540999" style={{ 
-            color: '#dc143c', 
+            color: '#00D9FF', 
             textDecoration: 'none',
             fontWeight: 'bold',
             padding: '0.5rem 1rem',
-            border: '2px solid #dc143c',
+            border: '2px solid #00D9FF',
             borderRadius: '25px',
             display: 'inline-block',
             transition: 'all 0.3s'

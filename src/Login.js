@@ -53,7 +53,7 @@ function Login({ onLogin }) {
             style={{ 
               width: 120, 
               borderRadius: '15px',
-              border: '2px solid #dc143c',
+              border: '2px solid #00D9FF',
               padding: '10px',
               background: 'rgba(26,26,46,0.8)',
               boxShadow: '0 10px 30px rgba(220,20,60,0.4)'
@@ -62,7 +62,7 @@ function Login({ onLogin }) {
         </div>
 
         <h1 style={{ 
-          color: '#dc143c', 
+          color: '#00D9FF', 
           fontWeight: 900, 
           fontSize: '2rem', 
           marginBottom: '0.5rem', 
@@ -102,7 +102,7 @@ function Login({ onLogin }) {
                 outline: 'none',
                 transition: 'all 0.3s'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#dc143c'}
+              onFocus={(e) => e.target.style.borderColor = '#00D9FF'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(220,20,60,0.3)'}
             />
           </div>
@@ -128,7 +128,7 @@ function Login({ onLogin }) {
                 outline: 'none',
                 transition: 'all 0.3s'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#dc143c'}
+              onFocus={(e) => e.target.style.borderColor = '#00D9FF'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(220,20,60,0.3)'}
             />
           </div>
@@ -150,7 +150,7 @@ function Login({ onLogin }) {
           <button
             type="submit"
             style={{
-              background: 'linear-gradient(90deg, #dc143c 60%, #ff1744 100%)',
+              background: 'linear-gradient(90deg, #00D9FF 60%, #FF6B00 100%)',
               color: '#fff',
               fontWeight: 'bold',
               fontSize: '1.1rem',

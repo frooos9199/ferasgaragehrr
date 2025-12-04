@@ -1,8 +1,43 @@
 .App {
   text-align: center;
   font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%, #000000 100%);
+  background-attachment: fixed;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Carbon Fiber Texture Overlay */
+.App::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 217, 255, 0.03) 2px,
+      rgba(0, 217, 255, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 107, 0, 0.03) 2px,
+      rgba(255, 107, 0, 0.03) 4px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.App > * {
+  position: relative;
+  z-index: 2;
 }
 
 .App-logo {
@@ -17,7 +52,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #0a0a0a;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -28,7 +63,13 @@
 }
 
 .App-link {
-  color: #dc143c;
+  color: #00D9FF;
+  transition: all 0.3s ease;
+}
+
+.App-link:hover {
+  color: #FF6B00;
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
 }
 
 @keyframes App-logo-spin {
@@ -45,32 +86,38 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Sport Theme */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #000000;
+  border-left: 1px solid rgba(0, 217, 255, 0.2);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #dc143c, #ff1744);
-  border-radius: 6px;
+  background: linear-gradient(180deg, #00D9FF, #FF6B00);
+  border-radius: 10px;
+  border: 2px solid #000000;
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #ff1744, #dc143c);
+  background: linear-gradient(180deg, #FF6B00, #FFD700);
+  box-shadow: 0 0 15px rgba(255, 107, 0, 0.8);
 }
 
-/* Selection color */
+/* Selection color - Electric Blue */
 ::selection {
-  background: #dc143c;
-  color: #fff;
+  background: #00D9FF;
+  color: #000;
+  text-shadow: 0 0 5px rgba(0, 217, 255, 0.5);
 }
 
 ::-moz-selection {
-  background: #dc143c;
-  color: #fff;
+  background: #00D9FF;
+  color: #000;
 }
+
 

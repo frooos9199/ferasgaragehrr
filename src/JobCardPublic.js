@@ -15,13 +15,13 @@ function JobCardPublic() {
         @media print {
           body { background: white !important; }
           main { background: white !important; box-shadow: none !important; color: black !important; }
-          h1, h2, h3, strong { color: #dc143c !important; }
+          h1, h2, h3, strong { color: #00D9FF !important; }
           .no-print { display: none !important; }
           * { color: black !important; }
         }
       `}</style>
       
-      <main style={{ maxWidth: 600, margin: '2.5rem auto', background: 'rgba(26,26,46,0.97)', borderRadius: 18, boxShadow: '0 8px 32px #dc143c44', padding: '2.5rem 1.5rem', color: '#fff' }}>
+      <main style={{ maxWidth: 600, margin: '2.5rem auto', background: 'rgba(26,26,46,0.97)', borderRadius: 18, boxShadow: '0 8px 32px #00D9FF44', padding: '2.5rem 1.5rem', color: '#fff' }}>
       {/* Print Button */}
       <div className="no-print" style={{ textAlign: 'right', marginBottom: '1rem' }}>
         <button
@@ -50,14 +50,14 @@ function JobCardPublic() {
           style={{ 
             width: 120, 
             borderRadius: '15px',
-            border: '2px solid #dc143c',
+            border: '2px solid #00D9FF',
             padding: '10px',
             background: 'rgba(26,26,46,0.8)',
             boxShadow: '0 10px 30px rgba(220,20,60,0.4)'
           }} 
         />
       </div>
-      <h1 style={{ color: '#dc143c', fontWeight: 900, fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', letterSpacing: 2 }}>Job Card</h1>
+      <h1 style={{ color: '#00D9FF', fontWeight: 900, fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', letterSpacing: 2 }}>Job Card</h1>
       
       {/* Status Badge */}
       {(() => {
@@ -69,7 +69,7 @@ function JobCardPublic() {
           'Completed': '#10b981',
           'Delivered': '#6366f1'
         };
-        const statusColor = statusColors[card.status] || '#dc143c';
+        const statusColor = statusColors[card.status] || '#00D9FF';
         return (
           <div style={{ 
             textAlign: 'center', 
@@ -131,7 +131,7 @@ function JobCardPublic() {
       
       {/* Vehicle Header */}
       <div style={{ textAlign: 'center', marginBottom: '1.5rem', padding: '1.5rem', background: 'rgba(220,20,60,0.1)', borderRadius: '12px', border: '2px solid rgba(220,20,60,0.3)' }}>
-        <div style={{ fontWeight: 900, fontSize: '1.8rem', color: '#dc143c', marginBottom: '0.5rem' }}>
+        <div style={{ fontWeight: 900, fontSize: '1.8rem', color: '#00D9FF', marginBottom: '0.5rem' }}>
           🏎️ Ford {card.model}
         </div>
         <div style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '0.3rem' }}>{card.year}</div>
@@ -143,10 +143,10 @@ function JobCardPublic() {
       {/* Owner Info */}
       <div style={{ fontSize: '0.98rem', color: '#fff', marginBottom: '1.5rem', padding: '1.2rem', background: 'rgba(220,20,60,0.08)', borderRadius: '10px', border: '1px solid rgba(220,20,60,0.25)' }}>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: '#dc143c' }}>👤 Owner:</strong> {card.ownerName}
+          <strong style={{ color: '#00D9FF' }}>👤 Owner:</strong> {card.ownerName}
         </div>
         <div>
-          <strong style={{ color: '#dc143c' }}>📞 Phone:</strong> {card.ownerPhone}
+          <strong style={{ color: '#00D9FF' }}>📞 Phone:</strong> {card.ownerPhone}
         </div>
       </div>
       
@@ -202,15 +202,15 @@ function JobCardPublic() {
       {/* Specs */}
       {card.specs && (
         <div style={{ fontSize: '0.98rem', color: '#fff', marginBottom: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.04)', borderRadius: '8px' }}>
-          <strong style={{ color: '#dc143c' }}>⚙️ Specifications:</strong><br/>
+          <strong style={{ color: '#00D9FF' }}>⚙️ Specifications:</strong><br/>
           {card.specs}
         </div>
       )}
       
       {/* Issues */}
       {card.issues && card.issues.length > 0 && (
-        <div style={{ fontSize: '0.98rem', color: '#fff', marginBottom: '1rem', padding: '1rem', background: 'rgba(255,100,100,0.1)', borderRadius: '8px', borderLeft: '4px solid #ff1744' }}>
-          <strong style={{ color: '#ff1744' }}>⚠️ Reported Issues:</strong>
+        <div style={{ fontSize: '0.98rem', color: '#fff', marginBottom: '1rem', padding: '1rem', background: 'rgba(255,100,100,0.1)', borderRadius: '8px', borderLeft: '4px solid #FF6B00' }}>
+          <strong style={{ color: '#FF6B00' }}>⚠️ Reported Issues:</strong>
           <ul style={{ margin: '0.5rem 0 0 1.2rem', paddingLeft: '0' }}>
             {card.issues.map((issue, idx) => (
               <li key={idx} style={{ marginBottom: '0.3rem' }}>{issue}</li>
@@ -234,7 +234,7 @@ function JobCardPublic() {
       {/* Notes */}
       {card.notes && (
         <div style={{ fontSize: '0.98rem', color: '#aaa', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', fontStyle: 'italic' }}>
-          <strong style={{ color: '#dc143c' }}>📝 Notes:</strong><br/>
+          <strong style={{ color: '#00D9FF' }}>📝 Notes:</strong><br/>
           {card.notes}
         </div>
       )}
@@ -242,7 +242,7 @@ function JobCardPublic() {
       {/* Image Gallery */}
       {card.images && card.images.length > 0 && (
         <div style={{ marginBottom: '1.5rem', padding: '1.2rem', background: 'rgba(220,20,60,0.08)', borderRadius: '10px', border: '1px solid rgba(220,20,60,0.25)' }}>
-          <div style={{ fontSize: '1.1rem', color: '#dc143c', fontWeight: 'bold', marginBottom: '1rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.1rem', color: '#00D9FF', fontWeight: 'bold', marginBottom: '1rem', textAlign: 'center' }}>
             📸 Vehicle Photos ({card.images.length})
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.8rem' }}>

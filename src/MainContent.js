@@ -81,7 +81,7 @@ function MainContent() {
 
   return (
     <main style={{ 
-      background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)',
+      background: 'linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)',
       minHeight: '100vh',
       opacity: fadeIn ? 1 : 0,
       transition: 'opacity 1s ease-in',
@@ -97,10 +97,10 @@ function MainContent() {
         right: 0,
         bottom: 0,
         backgroundImage: `
-          linear-gradient(30deg, #dc143c 12%, transparent 12.5%, transparent 87%, #dc143c 87.5%, #dc143c),
-          linear-gradient(150deg, #dc143c 12%, transparent 12.5%, transparent 87%, #dc143c 87.5%, #dc143c),
-          linear-gradient(30deg, #dc143c 12%, transparent 12.5%, transparent 87%, #dc143c 87.5%, #dc143c),
-          linear-gradient(150deg, #dc143c 12%, transparent 12.5%, transparent 87%, #dc143c 87.5%, #dc143c)
+          linear-gradient(30deg, #00D9FF 12%, transparent 12.5%, transparent 87%, #00D9FF 87.5%, #00D9FF),
+          linear-gradient(150deg, #FF6B00 12%, transparent 12.5%, transparent 87%, #FF6B00 87.5%, #FF6B00),
+          linear-gradient(30deg, #FF6B00 12%, transparent 12.5%, transparent 87%, #FF6B00 87.5%, #FF6B00),
+          linear-gradient(150deg, #FFD700 12%, transparent 12.5%, transparent 87%, #FFD700 87.5%, #FFD700)
         `,
         backgroundSize: '80px 140px',
         backgroundPosition: '0 0, 0 0, 40px 70px, 40px 70px',
@@ -116,14 +116,14 @@ function MainContent() {
           top: '2rem',
           right: lang === 'ar' ? 'auto' : '2rem',
           left: lang === 'ar' ? '2rem' : 'auto',
-          background: 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)',
-          color: '#fff',
-          border: 'none',
+          background: 'linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%)',
+          color: '#000',
+          border: '2px solid #FFD700',
           borderRadius: 50,
           padding: '0.8rem 1.5rem',
           fontWeight: 'bold',
           cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(220,20,60,0.4)',
+          boxShadow: '0 4px 20px rgba(0,217,255,0.5)',
           transition: 'all 0.3s ease',
           zIndex: 1000,
           fontSize: '1rem'
@@ -152,7 +152,7 @@ function MainContent() {
                 maxWidth: '90%', 
                 marginBottom: 20,
                 borderRadius: '20px',
-                border: '3px solid #dc143c',
+                border: '3px solid #00D9FF',
                 padding: '15px',
                 background: 'linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(10,10,10,0.9) 100%)',
                 boxShadow: '0 15px 50px rgba(220,20,60,0.6), 0 0 30px rgba(220,20,60,0.3)',
@@ -177,7 +177,7 @@ function MainContent() {
           </h1>
           
           <h2 style={{ 
-            color: '#dc143c', 
+            color: '#00D9FF', 
             fontWeight: 700, 
             fontSize: 'clamp(1.3rem, 4vw, 2rem)', 
             marginBottom: '0.5rem',
@@ -214,32 +214,32 @@ function MainContent() {
           }}>
             <div style={{ 
               background: 'rgba(220,20,60,0.1)', 
-              border: '2px solid #dc143c',
+              border: '2px solid #00D9FF',
               borderRadius: 15,
               padding: '1rem',
               backdropFilter: 'blur(10px)'
             }}>
-              <div style={{ color: '#dc143c', fontSize: '1.8rem', fontWeight: 'bold' }}>19+</div>
+              <div style={{ color: '#00D9FF', fontSize: '1.8rem', fontWeight: 'bold' }}>19+</div>
               <div style={{ color: '#ccc', fontSize: '0.85rem' }}>{lang === 'en' ? 'Years' : 'عامًا'}</div>
             </div>
             <div style={{ 
               background: 'rgba(220,20,60,0.1)', 
-              border: '2px solid #dc143c',
+              border: '2px solid #00D9FF',
               borderRadius: 15,
               padding: '1rem',
               backdropFilter: 'blur(10px)'
             }}>
-              <div style={{ color: '#dc143c', fontSize: '1.8rem', fontWeight: 'bold' }}>IDS</div>
+              <div style={{ color: '#00D9FF', fontSize: '1.8rem', fontWeight: 'bold' }}>IDS</div>
               <div style={{ color: '#ccc', fontSize: '0.85rem' }}>{lang === 'en' ? 'Certified' : 'معتمد'}</div>
             </div>
             <div style={{ 
               background: 'rgba(220,20,60,0.1)', 
-              border: '2px solid #dc143c',
+              border: '2px solid #00D9FF',
               borderRadius: 15,
               padding: '1rem',
               backdropFilter: 'blur(10px)'
             }}>
-              <div style={{ color: '#dc143c', fontSize: '1.8rem', fontWeight: 'bold' }}>100%</div>
+              <div style={{ color: '#00D9FF', fontSize: '1.8rem', fontWeight: 'bold' }}>100%</div>
               <div style={{ color: '#ccc', fontSize: '0.85rem' }}>{lang === 'en' ? 'Ford Only' : 'فورد فقط'}</div>
             </div>
           </div>
@@ -249,7 +249,7 @@ function MainContent() {
             href="https://wa.me/96550540999" 
             style={{ 
               display: 'inline-block',
-              background: 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)',
+              background: 'linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%)',
               color: '#fff',
               padding: '1.2rem 3rem',
               borderRadius: 50,
@@ -261,7 +261,7 @@ function MainContent() {
               transition: 'all 0.3s ease',
               textTransform: 'uppercase',
               letterSpacing: 1,
-              border: '2px solid #dc143c'
+              border: '2px solid #00D9FF'
             }}
             onMouseOver={e => { 
               e.target.style.transform = 'scale(1.1) translateY(-5px)'; 
@@ -280,7 +280,7 @@ function MainContent() {
       <section style={{ padding: '4rem 2rem', background: 'rgba(220,20,60,0.05)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h3 style={{ 
-            color: '#dc143c', 
+            color: '#00D9FF', 
             fontWeight: 900, 
             fontSize: 'clamp(2rem, 5vw, 3rem)', 
             marginBottom: '3rem', 
@@ -315,7 +315,7 @@ function MainContent() {
       <section style={{ padding: '4rem 2rem' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
           <h3 style={{ 
-            color: '#dc143c', 
+            color: '#00D9FF', 
             fontWeight: 900, 
             fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', 
             marginBottom: '2rem',
@@ -343,7 +343,7 @@ function MainContent() {
                 onMouseOver={e => {
                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220,20,60,0.2) 0%, rgba(255,23,68,0.1) 100%)';
                   e.currentTarget.style.transform = 'translateY(-10px)';
-                  e.currentTarget.style.borderColor = '#dc143c';
+                  e.currentTarget.style.borderColor = '#00D9FF';
                 }}
                 onMouseOut={e => {
                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(220,20,60,0.1) 0%, rgba(255,23,68,0.05) 100%)';
@@ -362,7 +362,7 @@ function MainContent() {
       <section style={{ padding: '4rem 2rem', background: 'rgba(220,20,60,0.05)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <h3 style={{ 
-            color: '#dc143c', 
+            color: '#00D9FF', 
             fontWeight: 900, 
             fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', 
             marginBottom: '2rem', 
@@ -373,7 +373,7 @@ function MainContent() {
           </h3>
           <div style={{ 
             background: 'linear-gradient(135deg, rgba(26,26,46,0.9) 0%, rgba(10,10,10,0.9) 100%)',
-            border: '2px solid #dc143c',
+            border: '2px solid #00D9FF',
             borderRadius: 20,
             padding: '2.5rem',
             boxShadow: '0 10px 40px rgba(220,20,60,0.3)',
@@ -383,22 +383,22 @@ function MainContent() {
               <div style={{ marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: lang === 'ar' ? 'row-reverse' : 'row' }}>
                 <span style={{ fontSize: '1.8rem' }}>📍</span>
                 <div>
-                  <strong style={{ color: '#dc143c' }}>{t.location}</strong><br/>
+                  <strong style={{ color: '#00D9FF' }}>{t.location}</strong><br/>
                   <span style={{ color: '#ccc' }}>{t.locationText}</span>
                 </div>
               </div>
               <div style={{ marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: lang === 'ar' ? 'row-reverse' : 'row' }}>
                 <span style={{ fontSize: '1.8rem' }}>👨‍�</span>
                 <div>
-                  <strong style={{ color: '#dc143c' }}>{t.manager}</strong><br/>
+                  <strong style={{ color: '#00D9FF' }}>{t.manager}</strong><br/>
                   <span style={{ color: '#ccc' }}>{t.managerName}</span>
                 </div>
               </div>
               <div style={{ marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: lang === 'ar' ? 'row-reverse' : 'row' }}>
                 <span style={{ fontSize: '1.8rem' }}>💬</span>
                 <div>
-                  <strong style={{ color: '#dc143c' }}>{t.whatsapp}</strong><br/>
-                  <a href="https://wa.me/96550540999" style={{ color: '#fff', textDecoration: 'none', borderBottom: '2px solid #dc143c', transition: 'all 0.3s' }}>
+                  <strong style={{ color: '#00D9FF' }}>{t.whatsapp}</strong><br/>
+                  <a href="https://wa.me/96550540999" style={{ color: '#fff', textDecoration: 'none', borderBottom: '2px solid #00D9FF', transition: 'all 0.3s' }}>
                     +965 50540999
                   </a>
                 </div>
@@ -439,8 +439,8 @@ function ServiceCard({ icon, title, desc, index, active, onClick }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{ 
-        background: isHovered || active ? 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)' : 'linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(10,10,10,0.8) 100%)',
-        border: `2px solid ${isHovered || active ? '#ff1744' : 'rgba(220,20,60,0.3)'}`,
+        background: isHovered || active ? 'linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%)' : 'linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(10,10,10,0.8) 100%)',
+        border: `2px solid ${isHovered || active ? '#FF6B00' : 'rgba(220,20,60,0.3)'}`,
         borderRadius: 20,
         padding: '2rem 1.5rem',
         boxShadow: isHovered || active ? '0 15px 50px rgba(220,20,60,0.5)' : '0 8px 30px rgba(0,0,0,0.3)',
@@ -462,7 +462,7 @@ function ServiceCard({ icon, title, desc, index, active, onClick }) {
         {icon}
       </div>
       <div style={{ 
-        color: isHovered || active ? '#fff' : '#dc143c',
+        color: isHovered || active ? '#fff' : '#00D9FF',
         fontWeight: 'bold',
         fontSize: '1.2rem',
         marginBottom: '0.5rem',

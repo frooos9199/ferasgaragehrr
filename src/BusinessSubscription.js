@@ -41,7 +41,7 @@ function BusinessSubscription() {
       color: '#fff'
     }}>
       <h1 style={{ 
-        color: '#dc143c', 
+        color: '#00D9FF', 
         fontWeight: 'bold', 
         fontSize: '2.2rem', 
         marginBottom: '1.5rem', 
@@ -62,7 +62,7 @@ function BusinessSubscription() {
       </p>
       {submitted ? (
         <div style={{ 
-          color: '#dc143c', 
+          color: '#00D9FF', 
           fontWeight: 'bold', 
           fontSize: '1.2rem', 
           textAlign: 'center', 
@@ -77,7 +77,7 @@ function BusinessSubscription() {
       ) : (
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
           <div>
-            <label style={{ fontWeight: 'bold', color: '#dc143c', fontSize: '1.05rem' }}>Company/Organization Name:</label><br />
+            <label style={{ fontWeight: 'bold', color: '#00D9FF', fontSize: '1.05rem' }}>Company/Organization Name:</label><br />
             <input 
               name="company" 
               type="text" 
@@ -97,7 +97,7 @@ function BusinessSubscription() {
             />
           </div>
           <div>
-            <label style={{ fontWeight: 'bold', color: '#dc143c', fontSize: '1.05rem' }}>Contact Person:</label><br />
+            <label style={{ fontWeight: 'bold', color: '#00D9FF', fontSize: '1.05rem' }}>Contact Person:</label><br />
             <input 
               name="contact" 
               type="text" 
@@ -117,7 +117,7 @@ function BusinessSubscription() {
             />
           </div>
           <div>
-            <label style={{ fontWeight: 'bold', color: '#dc143c', fontSize: '1.05rem' }}>Email:</label><br />
+            <label style={{ fontWeight: 'bold', color: '#00D9FF', fontSize: '1.05rem' }}>Email:</label><br />
             <input 
               name="email" 
               type="email" 
@@ -137,7 +137,7 @@ function BusinessSubscription() {
             />
           </div>
           <div>
-            <label style={{ fontWeight: 'bold', color: '#dc143c', fontSize: '1.05rem' }}>Message/Request Details:</label><br />
+            <label style={{ fontWeight: 'bold', color: '#00D9FF', fontSize: '1.05rem' }}>Message/Request Details:</label><br />
             <textarea 
               name="message" 
               value={form.message} 
@@ -160,7 +160,7 @@ function BusinessSubscription() {
           <button 
             type="submit" 
             style={{ 
-              background: 'linear-gradient(135deg, #dc143c 0%, #ff1744 100%)', 
+              background: 'linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%)', 
               color: '#fff', 
               padding: '1.1rem 2.5rem', 
               border: 'none', 

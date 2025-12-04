@@ -9,29 +9,187 @@ import JobCardPublic from './JobCardPublic';
 import Login from './Login';
 
 const navCSS = `
-  .navbar-lmr { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); color: #fff; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(220,20,60,0.3); border-bottom: 2px solid #dc143c; }
-  .navbar-lmr .logo { font-size: 1.6rem; font-weight: 900; color: #dc143c; letter-spacing: 2px; text-decoration: none; text-transform: uppercase; text-shadow: 0 0 10px rgba(220,20,60,0.5); }
+  .navbar-lmr { 
+    background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%); 
+    color: #fff; 
+    height: 75px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 2.5rem; 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+    box-shadow: 0 4px 25px rgba(0, 217, 255, 0.3), 0 0 50px rgba(255, 107, 0, 0.2); 
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, #00D9FF, #FF6B00, #FFD700, #FF6B00, #00D9FF) 1;
+  }
+  .navbar-lmr .logo { 
+    font-size: 1.8rem; 
+    font-weight: 900; 
+    background: linear-gradient(135deg, #00D9FF, #FF6B00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 3px; 
+    text-decoration: none; 
+    text-transform: uppercase; 
+    filter: drop-shadow(0 0 15px rgba(0, 217, 255, 0.6));
+    transition: all 0.3s;
+  }
+  .navbar-lmr .logo:hover {
+    filter: drop-shadow(0 0 25px rgba(255, 107, 0, 0.8));
+    transform: scale(1.05);
+  }
   .navbar-lmr .links { display: flex; gap: 1.5rem; align-items: center; }
-  .navbar-lmr .link { color: #fff; text-decoration: none; font-weight: 600; font-size: 1.05rem; padding: 0.6rem 1.3rem; border-radius: 8px; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; border: 2px solid transparent; }
-  .navbar-lmr .link:hover { background: rgba(220,20,60,0.1); border-color: #dc143c; color: #dc143c; }
-  .navbar-lmr .link.active { background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%); color: #fff; border-color: #ff1744; box-shadow: 0 4px 15px rgba(220,20,60,0.4); }
-  .navbar-lmr .link.privacy { color: #dc143c; border-color: #dc143c; }
-  .navbar-lmr .burger { display: none; background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%); border: none; cursor: pointer; margin-left: 1rem; padding: 0.6rem 1rem; border-radius: 8px; }
+  .navbar-lmr .link { 
+    color: #fff; 
+    text-decoration: none; 
+    font-weight: 600; 
+    font-size: 1.05rem; 
+    padding: 0.7rem 1.5rem; 
+    border-radius: 10px; 
+    transition: all 0.3s; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    border: 2px solid transparent; 
+    position: relative;
+    overflow: hidden;
+  }
+  .navbar-lmr .link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+  .navbar-lmr .link:hover::before {
+    left: 100%;
+  }
+  .navbar-lmr .link:hover { 
+    background: rgba(0, 217, 255, 0.1); 
+    border-color: #00D9FF; 
+    color: #00D9FF; 
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+  }
+  .navbar-lmr .link.active { 
+    background: linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%); 
+    color: #000; 
+    border-color: #FFD700; 
+    box-shadow: 0 4px 20px rgba(0, 217, 255, 0.5), 0 0 30px rgba(255, 107, 0, 0.3);
+    font-weight: 700;
+  }
+  .navbar-lmr .link.privacy { 
+    color: #FFD700; 
+    border-color: #FFD700; 
+  }
+  .navbar-lmr .link.privacy:hover {
+    background: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  }
+  .navbar-lmr .burger { 
+    display: none; 
+    background: linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%); 
+    border: 2px solid #FFD700; 
+    cursor: pointer; 
+    margin-left: 1rem; 
+    padding: 0.7rem 1.2rem; 
+    border-radius: 10px; 
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+    transition: all 0.3s;
+  }
+  .navbar-lmr .burger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 107, 0, 0.7);
+  }
   .navbar-lmr .burger svg { display: block; }
+  .navbar-lmr .burger svg rect { fill: #000; }
   .navbar-lmr .overlay { display: none; }
   .navbar-lmr .side-menu { display: none; }
   @media (max-width: 900px) {
     .navbar-lmr .links { display: none; }
     .navbar-lmr .burger { display: block; }
-    .navbar-lmr .overlay { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 999; opacity: 1; transition: opacity 0.3s; backdrop-filter: blur(5px); }
+    .navbar-lmr .overlay { 
+      display: block; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      background: rgba(0,0,0,0.85); 
+      z-index: 999; 
+      opacity: 1; 
+      transition: opacity 0.3s; 
+      backdrop-filter: blur(10px); 
+    }
     .navbar-lmr .overlay.closed { display: none; opacity: 0; }
-    .navbar-lmr .side-menu { display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; width: 280px; background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0a 100%); color: #fff; box-shadow: 4px 0 30px rgba(220,20,60,0.4); padding: 2.5rem 1.5rem; gap: 1rem; z-index: 1000; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-right: 3px solid #dc143c; }
+    .navbar-lmr .side-menu { 
+      display: flex; 
+      flex-direction: column; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      height: 100vh; 
+      width: 300px; 
+      background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%); 
+      color: #fff; 
+      box-shadow: 4px 0 40px rgba(0, 217, 255, 0.4), 8px 0 60px rgba(255, 107, 0, 0.3); 
+      padding: 2.5rem 1.5rem; 
+      gap: 1rem; 
+      z-index: 1000; 
+      transform: translateX(-100%); 
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+      border-right: 4px solid transparent;
+      border-image: linear-gradient(180deg, #00D9FF, #FF6B00, #FFD700) 1;
+    }
     .navbar-lmr .side-menu.open { transform: translateX(0); }
-    .navbar-lmr .side-menu .close-btn { align-self: flex-end; background: #dc143c; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; margin-bottom: 2rem; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .navbar-lmr .side-menu .link { font-size: 1.1rem; padding: 0.9rem 1rem; color: #fff; border-radius: 8px; border: 2px solid transparent; }
-    .navbar-lmr .side-menu .link:hover { background: rgba(220,20,60,0.1); border-color: #dc143c; }
-    .navbar-lmr .side-menu .link.active { background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%); color: #fff; border-color: #ff1744; }
-    .navbar-lmr .side-menu .link.privacy { color: #dc143c; border-color: #dc143c; }
+    .navbar-lmr .side-menu .close-btn { 
+      align-self: flex-end; 
+      background: linear-gradient(135deg, #FF6B00, #00D9FF); 
+      border: 2px solid #FFD700; 
+      color: #000; 
+      font-size: 2rem; 
+      font-weight: bold;
+      cursor: pointer; 
+      margin-bottom: 2rem; 
+      width: 45px; 
+      height: 45px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
+      transition: all 0.3s;
+    }
+    .navbar-lmr .side-menu .close-btn:hover {
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+    }
+    .navbar-lmr .side-menu .link { 
+      font-size: 1.1rem; 
+      padding: 1rem 1.2rem; 
+      color: #fff; 
+      border-radius: 10px; 
+      border: 2px solid transparent; 
+    }
+    .navbar-lmr .side-menu .link:hover { 
+      background: rgba(0, 217, 255, 0.1); 
+      border-color: #00D9FF; 
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+    }
+    .navbar-lmr .side-menu .link.active { 
+      background: linear-gradient(135deg, #00D9FF 0%, #FF6B00 100%); 
+      color: #000; 
+      border-color: #FFD700; 
+      font-weight: 700;
+    }
+    .navbar-lmr .side-menu .link.privacy { 
+      color: #FFD700; 
+      border-color: #FFD700; 
+    }
   }
 `;
 
@@ -68,24 +226,30 @@ function Navbar({ isLoggedIn, onLogout }) {
           <button 
             onClick={onLogout}
             style={{
-              background: 'rgba(255,0,0,0.2)',
-              border: '2px solid rgba(255,0,0,0.5)',
-              color: '#ff6666',
-              padding: '0.6rem 1.3rem',
-              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #FF6B00, #FFD700)',
+              border: '2px solid #00D9FF',
+              color: '#000',
+              padding: '0.7rem 1.5rem',
+              borderRadius: '10px',
               cursor: 'pointer',
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: '1.05rem',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s'
+              letterSpacing: '1px',
+              transition: 'all 0.3s',
+              boxShadow: '0 0 20px rgba(255, 107, 0, 0.5)',
+              textTransform: 'uppercase'
             }}
             onMouseOver={(e) => {
-              e.target.style.background = 'rgba(255,0,0,0.3)';
-              e.target.style.borderColor = '#ff0000';
+              e.target.style.background = 'linear-gradient(135deg, #00D9FF, #FF6B00)';
+              e.target.style.borderColor = '#FFD700';
+              e.target.style.boxShadow = '0 0 30px rgba(0, 217, 255, 0.7)';
+              e.target.style.transform = 'scale(1.05)';
             }}
             onMouseOut={(e) => {
-              e.target.style.background = 'rgba(255,0,0,0.2)';
-              e.target.style.borderColor = 'rgba(255,0,0,0.5)';
+              e.target.style.background = 'linear-gradient(135deg, #FF6B00, #FFD700)';
+              e.target.style.borderColor = '#00D9FF';
+              e.target.style.boxShadow = '0 0 20px rgba(255, 107, 0, 0.5)';
+              e.target.style.transform = 'scale(1)';
             }}
           >
             🚪 LOGOUT
@@ -93,7 +257,7 @@ function Navbar({ isLoggedIn, onLogout }) {
         )}
       </div>
       <button className="burger" aria-label="Open menu" onClick={() => setOpen(true)}>
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect y="6" width="32" height="4" rx="2" fill="#ffd700"/><rect y="14" width="32" height="4" rx="2" fill="#ffd700"/><rect y="22" width="32" height="4" rx="2" fill="#ffd700"/></svg>
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect y="6" width="32" height="4" rx="2" fill="#000"/><rect y="14" width="32" height="4" rx="2" fill="#000"/><rect y="22" width="32" height="4" rx="2" fill="#000"/></svg>
       </button>
       {/* Overlay */}
       <div className={`overlay${open ? '' : ' closed'}`} onClick={() => setOpen(false)}></div>
@@ -110,18 +274,21 @@ function Navbar({ isLoggedIn, onLogout }) {
               setOpen(false);
             }}
             style={{
-              background: 'rgba(255,0,0,0.2)',
-              border: '2px solid rgba(255,0,0,0.5)',
-              color: '#ff6666',
-              padding: '0.9rem 1rem',
-              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #FF6B00, #FFD700)',
+              border: '2px solid #00D9FF',
+              color: '#000',
+              padding: '1rem 1.2rem',
+              borderRadius: '10px',
               cursor: 'pointer',
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: '1.1rem',
-              letterSpacing: '0.5px',
+              letterSpacing: '1px',
               marginTop: '1rem',
               width: '100%',
-              textAlign: 'left'
+              textAlign: 'center',
+              transition: 'all 0.3s',
+              boxShadow: '0 0 20px rgba(255, 107, 0, 0.5)',
+              textTransform: 'uppercase'
             }}
           >
             🚪 LOGOUT
