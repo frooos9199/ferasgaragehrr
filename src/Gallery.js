@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs } from 'firebase/firestore';
 
 function Gallery() {
   const [cars, setCars] = useState([]);
@@ -10,18 +10,27 @@ function Gallery() {
   useEffect(() => {
     const fetchCompletedCars = async () => {
       try {
-        // Get only completed or delivered cars
-        const q = query(
-          collection(db, 'jobCards'),
-          where('status', 'in', ['Completed', 'Delivered']),
-          orderBy('createdAt', 'desc')
-        );
+        // Get all job cards and filter in JavaScript instead of Firestore
+        const q = query(collection(db, 'jobCards'));
         
         const snapshot = await getDocs(q);
-        const carsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })).filter(car => car.images && car.images.length > 0); // Only cars with images
+        const carsData = snapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          .filter(car => 
+            // Only completed/delivered cars with images
+            (car.status === 'Completed' || car.status === 'Delivered') &&
+            car.images && 
+            car.images.length > 0
+          )
+          .sort((a, b) => {
+            // Sort by creation date, newest first
+            const aTime = a.createdAt?.seconds || 0;
+            const bTime = b.createdAt?.seconds || 0;
+            return bTime - aTime;
+          });
         
         setCars(carsData);
         setLoading(false);
