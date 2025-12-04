@@ -415,12 +415,12 @@ function JobCardAdmin() {
       )}
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.2rem', marginBottom: '2.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '1.5rem' }}>
         <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: '1fr 1fr' }}>
-          <input name="carNumber" value={form.carNumber} onChange={handleChange} required placeholder="Car Number" style={inputStyle} />
-          <input name="vin" value={form.vin} onChange={handleChange} required placeholder="VIN" style={inputStyle} />
+          <input name="carNumber" value={form.carNumber} onChange={handleChange} placeholder="Car Number" style={inputStyle} />
+          <input name="vin" value={form.vin} onChange={handleChange} placeholder="VIN" style={inputStyle} />
           
           {/* Ford Model Dropdown */}
           <div style={{ gridColumn: '1 / -1', display: 'grid', gap: '1rem', gridTemplateColumns: '1fr 2fr' }}>
-            <select name="model" value={form.model} onChange={handleChange} required style={{...inputStyle, cursor: 'pointer'}}>
+            <select name="model" value={form.model} onChange={handleChange} style={{...inputStyle, cursor: 'pointer'}}>
               <option value="">Select Model</option>
               <option value="Mustang">Mustang</option>
               <option value="F-150">F-150</option>
@@ -430,10 +430,10 @@ function JobCardAdmin() {
             <input name="specs" value={form.specs} onChange={handleChange} placeholder="Specs (e.g. GT 5.0L V8, Premium, Lariat...)" style={inputStyle} />
           </div>
           
-          <input name="year" value={form.year} onChange={handleChange} required placeholder="Year" type="number" min="1960" max="2026" style={inputStyle} />
+          <input name="year" value={form.year} onChange={handleChange} placeholder="Year" type="number" min="1960" max="2026" style={inputStyle} />
           
           {/* Status Dropdown */}
-          <select name="status" value={form.status} onChange={handleChange} required style={{...inputStyle, cursor: 'pointer'}}>
+          <select name="status" value={form.status} onChange={handleChange} style={{...inputStyle, cursor: 'pointer'}}>
             <option value="Received">🔵 Received</option>
             <option value="Diagnosing">🔍 Diagnosing</option>
             <option value="Waiting Parts">⏳ Waiting Parts</option>
@@ -442,11 +442,11 @@ function JobCardAdmin() {
             <option value="Delivered">📦 Delivered</option>
           </select>
           
-          <input name="ownerName" value={form.ownerName} onChange={handleChange} required placeholder="Owner Name" style={inputStyle} />
-          <input name="ownerPhone" value={form.ownerPhone} onChange={handleChange} required placeholder="Owner Phone" type="tel" style={inputStyle} />
+          <input name="ownerName" value={form.ownerName} onChange={handleChange} placeholder="Owner Name" style={inputStyle} />
+          <input name="ownerPhone" value={form.ownerPhone} onChange={handleChange} placeholder="Owner Phone" type="tel" style={inputStyle} />
           
           {/* Timeline Fields */}
-          <input name="entryDate" value={form.entryDate} onChange={handleChange} required type="date" style={inputStyle} title="Entry Date" />
+          <input name="entryDate" value={form.entryDate} onChange={handleChange} type="date" style={inputStyle} title="Entry Date" />
           <input name="expectedDelivery" value={form.expectedDelivery} onChange={handleChange} type="date" style={inputStyle} placeholder="Expected Delivery" title="Expected Delivery Date" />
         </div>
         <textarea name="issues" value={form.issues} onChange={handleChange} placeholder="Issues (e.g. Engine noise, Brake worn, Check engine light...)" style={{...inputStyle, minHeight: '80px'}} rows="3" />
