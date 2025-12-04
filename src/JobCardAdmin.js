@@ -1229,7 +1229,7 @@ function JobCardAdmin() {
                   }}
                   style={{
                     flex: '1',
-                    minWidth: '120px',
+                    minWidth: '140px',
                     background: 'linear-gradient(90deg, #25D366 0%, #128C7E 100%)',
                     color: '#fff',
                     border: 'none',
@@ -1245,6 +1245,43 @@ function JobCardAdmin() {
                   onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
                 >
                   📱 إرسال واتساب
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // Get QR Code as canvas
+                    const qrElement = document.querySelector(`#qr-${card.id}`);
+                    if (!qrElement) return;
+                    
+                    const canvas = qrElement.querySelector('canvas');
+                    if (!canvas) return;
+                    
+                    // Download QR Code
+                    const link = document.createElement('a');
+                    link.download = `QR-${card.carNumber}-${card.id}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    
+                    alert('تم تحميل QR Code!\nالآن أرسله للزبون عبر WhatsApp 📲');
+                  }}
+                  style={{
+                    flex: '1',
+                    minWidth: '140px',
+                    background: 'linear-gradient(90deg, #00D9FF 0%, #0099CC 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.7rem 1.2rem',
+                    fontWeight: 'bold',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,217,255,0.3)',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  📥 تحميل QR Code
                 </button>
                 
                 <button
@@ -1294,7 +1331,7 @@ function JobCardAdmin() {
               
               <div style={{ marginTop: '0.7rem' }}>
                 <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.98rem' }}>QR Code:</span>
-                <div style={{ background: '#fff', display: 'inline-block', padding: 6, borderRadius: 8, marginLeft: 10 }}>
+                <div id={`qr-${card.id}`} style={{ background: '#fff', display: 'inline-block', padding: 6, borderRadius: 8, marginLeft: 10 }}>
                   <QRCodeSVG value={window.location.origin + '/jobcard/' + card.id} size={64} fgColor="#00D9FF" bgColor="#fff" />
                 </div>
               </div>
