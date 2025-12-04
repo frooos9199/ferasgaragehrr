@@ -37,6 +37,8 @@ function JobCardAdmin() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showInvoice, setShowInvoice] = useState(false);
   const [currentPart, setCurrentPart] = useState({ name: '', price: '', qty: 1 });
+  const [carNumberSearch, setCarNumberSearch] = useState('');
+  const [foundVehicles, setFoundVehicles] = useState([]);
 
   // Calculate statistics
   const stats = {
@@ -86,6 +88,49 @@ function JobCardAdmin() {
 
     return () => unsubscribe();
   }, []);
+
+  function searchByCarNumber() {
+    if (!carNumberSearch.trim()) {
+      alert('الرجاء إدخال رقم اللوحة');
+      return;
+    }
+    
+    const found = cards.filter(c => 
+      c.carNumber.toLowerCase().includes(carNumberSearch.toLowerCase())
+    );
+    
+    if (found.length > 0) {
+      setFoundVehicles(found);
+      // Auto-fill with most recent record
+      const latest = found[0];
+      setForm({
+        ...form,
+        carNumber: latest.carNumber,
+        vin: latest.vin,
+        make: latest.make,
+        model: latest.model,
+        year: latest.year,
+        specs: latest.specs,
+        ownerName: latest.ownerName,
+        ownerPhone: latest.ownerPhone,
+        // Reset service-specific fields
+        issues: '',
+        fixed: '',
+        notes: '',
+        status: 'Received',
+        entryDate: new Date().toISOString().split('T')[0],
+        expectedDelivery: '',
+        parts: [],
+        laborCost: 0,
+        discount: 0,
+        images: []
+      });
+      alert(`تم العثور على ${found.length} سجل سابق لهذه السيارة!\nتم ملء معلومات السيارة تلقائياً.`);
+    } else {
+      setFoundVehicles([]);
+      alert('لم يتم العثور على سجلات سابقة. يمكنك إضافة سيارة جديدة.');
+    }
+  }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -503,6 +548,60 @@ function JobCardAdmin() {
           ⚠️ Editing Mode - Update the form below
         </div>
       )}
+      
+      {/* Quick Search by Car Number */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, rgba(0,217,255,0.1) 0%, rgba(255,107,0,0.1) 100%)', 
+        borderRadius: 12, 
+        padding: '1.5rem', 
+        marginBottom: '1.5rem',
+        border: '2px solid rgba(0,217,255,0.3)'
+      }}>
+        <h3 style={{ color: '#00D9FF', marginBottom: '1rem', fontSize: '1.1rem' }}>
+          🔍 بحث سريع - هل السيارة موجودة مسبقاً؟
+        </h3>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <input 
+            type="text"
+            value={carNumberSearch}
+            onChange={(e) => setCarNumberSearch(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), searchByCarNumber())}
+            placeholder="ابحث برقم اللوحة..."
+            style={{
+              ...inputStyle,
+              flex: 1
+            }}
+          />
+          <button
+            type="button"
+            onClick={searchByCarNumber}
+            style={{
+              background: 'linear-gradient(90deg, #00D9FF 0%, #0099CC 100%)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.8rem 2rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              boxShadow: '0 4px 15px rgba(0,217,255,0.3)'
+            }}
+          >
+            بحث
+          </button>
+        </div>
+        {foundVehicles.length > 0 && (
+          <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0,217,255,0.1)', borderRadius: '8px', border: '1px solid #00D9FF' }}>
+            <p style={{ color: '#FFD700', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+              ✅ تم العثور على {foundVehicles.length} سجل سابق
+            </p>
+            <p style={{ color: '#ccc', fontSize: '0.9rem' }}>
+              معلومات السيارة تم ملؤها تلقائياً. املأ تفاصيل الصيانة الجديدة فقط.
+            </p>
+          </div>
+        )}
+      </div>
+      
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.2rem', marginBottom: '2.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '1.5rem' }}>
         <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: '1fr 1fr' }}>
           <input name="carNumber" value={form.carNumber} onChange={handleChange} placeholder="Car Number" style={inputStyle} />
