@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 
 // Helper function to format date as DD/MM/YYYY
@@ -343,7 +343,7 @@ function PartsInvoices() {
       ]);
       console.log('📊 Table data prepared:', tableData.length, 'rows');
       
-      pdf.autoTable({
+      autoTable(pdf, {
         startY: 115,
         head: [['#', 'Part Name', 'Qty', 'Price', 'Total']],
         body: tableData,
@@ -365,7 +365,7 @@ function PartsInvoices() {
       console.log('✅ Table added to PDF');
       
       // المجموع
-      const finalY = pdf.lastAutoTable.finalY + 10;
+      const finalY = pdf.previousAutoTable.finalY + 10;
       pdf.setFillColor(255, 107, 0);
       pdf.rect(15, finalY, 180, 15, 'F');
       pdf.setFontSize(14);
