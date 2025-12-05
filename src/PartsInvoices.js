@@ -116,7 +116,19 @@ function PartsInvoices() {
       resetForm();
     } catch (error) {
       console.error('Error saving invoice:', error);
-      alert('❌ خطأ في حفظ الفاتورة. حاول مرة أخرى.');
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        name: error.name
+      });
+      
+      if (error.code === 'permission-denied') {
+        alert('❌ خطأ في الصلاحيات. تحقق من إعدادات Firestore Security Rules.');
+      } else if (error.code === 'unavailable') {
+        alert('❌ لا يوجد اتصال بالإنترنت. تحقق من الاتصال.');
+      } else {
+        alert(`❌ خطأ في حفظ الفاتورة: ${error.message}`);
+      }
     }
   }
 
