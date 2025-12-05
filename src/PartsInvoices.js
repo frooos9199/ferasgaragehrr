@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -399,40 +400,55 @@ function PartsInvoices() {
       pdf.text('Thank you for your business!', 105, footerY, { align: 'center' });
       console.log('✅ PDF content complete');
       
-      // حفظ PDF محلياً
-      const pdfName = `Invoice_${invoice.invoiceNumber}_${formatDate(invoice.date).replace(/\//g, '-')}.pdf`;
-      console.log('� Saving PDF as:', pdfName);
-      pdf.save(pdfName);
-      console.log('✅ PDF saved successfully');
+      // رفع PDF على Firebase Storage
+      console.log('Uploading PDF to Firebase Storage...');
+      const pdfBlob = pdf.output('blob');
+      const fileName = `invoices/Invoice_${invoice.invoiceNumber}_${Date.now()}.pdf`;
       
-      // رسالة واتساب نصية فقط
-      let message = `*🏁 HOT ROD RACING*\n`;
-      message += `*Ford Specialist Garage*\n\n`;
-      message += `📋 *فاتورة رقم:* ${invoice.invoiceNumber}\n`;
-      message += `📅 *التاريخ:* ${formatDate(invoice.date)}\n`;
-      message += `💰 *المبلغ الإجمالي:* ${total.toFixed(3)} KD\n`;
-      message += `� *طريقة الدفع:* ${invoice.paymentMethod}\n`;
-      message += `✅ *الحالة:* ${invoice.paid ? 'مدفوعة' : 'غير مدفوعة'}\n\n`;
+      const storage = getStorage();
+      const storageRef = ref(storage, fileName);
       
-      // تفاصيل القطع
-      message += `*📦 القطع:*\n`;
-      invoice.items.forEach((item, idx) => {
-        message += `${idx + 1}. ${item.partName} - ${item.quantity} × ${item.price.toFixed(3)} KD\n`;
+      uploadBytes(storageRef, pdfBlob).then((snapshot) => {
+        console.log('PDF uploaded successfully!');
+        
+        getDownloadURL(snapshot.ref).then((downloadURL) => {
+          console.log('Download URL:', downloadURL);
+          
+          let message = `*HOT ROD RACING*\n`;
+          message += `*Ford Specialist Garage*\n\n`;
+          message += `فاتورة رقم: ${invoice.invoiceNumber}\n`;
+          message += `التاريخ: ${formatDate(invoice.date)}\n`;
+          message += `المبلغ الإجمالي: ${total.toFixed(3)} KD\n`;
+          message += `طريقة الدفع: ${invoice.paymentMethod}\n`;
+          message += `الحالة: ${invoice.paid ? 'مدفوعة' : 'غير مدفوعة'}\n\n`;
+          
+          message += `القطع:\n`;
+          invoice.items.forEach((item, idx) => {
+            message += `${idx + 1}. ${item.partName} - ${item.quantity} × ${item.price.toFixed(3)} KD\n`;
+          });
+          
+          message += `\nتحميل الفاتورة PDF:\n`;
+          message += `${downloadURL}\n\n`;
+          message += `للاستفسار: +965 50540999\n`;
+          message += `www.q8hrr.com`;
+        
+          const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
+          const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+          console.log('WhatsApp URL created for:', phoneNumber);
+          
+          // فتح واتساب
+          setTimeout(() => {
+            window.open(whatsappUrl, '_blank');
+            console.log('✅ WhatsApp opened successfully!');
+          }, 500);
+        }).catch((error) => {
+          console.error('❌ Error getting download URL:', error);
+          alert(`❌ خطأ في الحصول على رابط التحميل: ${error.message}`);
+        });
+      }).catch((error) => {
+        console.error('❌ Error uploading PDF:', error);
+        alert(`❌ خطأ في رفع الفاتورة: ${error.message}\n\nتأكد من تفعيل Firebase Storage`);
       });
-      
-      message += `\n📱 للاستفسار: +965 50540999\n`;
-      message += `🌐 www.q8hrr.com`;
-    
-      // إنشاء رابط واتساب
-      const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      console.log('📱 WhatsApp URL created for:', phoneNumber);
-      
-      // فتح واتساب
-      setTimeout(() => {
-        window.open(whatsappUrl, '_blank');
-        console.log('✅ WhatsApp opened successfully!');
-      }, 500);
     } catch (error) {
       console.error('❌ Error in sendWhatsApp:', error);
       console.error('Error name:', error.name);
