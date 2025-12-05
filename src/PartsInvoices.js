@@ -309,7 +309,7 @@ function PartsInvoices() {
     pdf.rect(0, 50, 210, 15, 'F');
     pdf.setFontSize(16);
     pdf.setTextColor(255, 255, 255);
-    pdf.text('Parts Invoice - فاتورة قطع غيار', 105, 60, { align: 'center' });
+    pdf.text('Parts Invoice', 105, 60, { align: 'center' });
     
     // معلومات الفاتورة
     pdf.setFillColor(255, 255, 255);
@@ -378,7 +378,7 @@ function PartsInvoices() {
     const footerY = 280;
     pdf.setFontSize(9);
     pdf.setTextColor(100, 100, 100);
-    pdf.text('Thank you for your business! - شكراً لتعاملكم معنا', 105, footerY, { align: 'center' });
+    pdf.text('Thank you for your business!', 105, footerY, { align: 'center' });
     
     // حفظ PDF وفتحه
     const pdfName = `Invoice_${invoice.invoiceNumber}_${formatDate(invoice.date).replace(/\//g, '-')}.pdf`;
