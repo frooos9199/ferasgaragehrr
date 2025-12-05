@@ -5,6 +5,15 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+// Helper function to format date as DD/MM/YYYY
+function formatDate(dateInput) {
+  const date = new Date(dateInput);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 function PartsInvoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -215,7 +224,7 @@ function PartsInvoices() {
         <div class="info">
           <div class="info-box">
             <strong>رقم الفاتورة:</strong> ${invoice.invoiceNumber}<br>
-            <strong>التاريخ:</strong> ${new Date(invoice.date).toLocaleDateString('ar-SA')}<br>
+            <strong>التاريخ:</strong> ${formatDate(invoice.date)}<br>
             <strong>النوع:</strong> <span class="type-badge ${invoice.type.toLowerCase()}">${invoice.type === 'Purchase' ? '🛒 شراء' : '💰 بيع'}</span>
           </div>
           <div class="info-box">
@@ -272,37 +281,53 @@ function PartsInvoices() {
     const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     // تكوين رسالة واتساب
-    let message = `*🏁 HOT ROD RACING (HRR)*\n`;
+    let message = `*━━━━━━━━━━━━━━━━*\n`;
+    message += `*🏁 HOT ROD RACING*\n`;
     message += `*Ford Specialist Garage*\n`;
     message += `📞 +965 50540999\n`;
-    message += `🌐 www.q8hrr.com\n\n`;
-    message += `━━━━━━━━━━━━━━━━\n\n`;
+    message += `🌐 www.q8hrr.com\n`;
+    message += `*━━━━━━━━━━━━━━━━*\n\n`;
+    
     message += `*📋 فاتورة قطع غيار*\n\n`;
-    message += `*رقم الفاتورة:* ${invoice.invoiceNumber}\n`;
-    message += `*التاريخ:* ${new Date(invoice.date).toLocaleDateString('ar-SA')}\n`;
-    message += `*النوع:* ${invoice.type === 'Purchase' ? '🛒 شراء من مورد' : '💰 بيع لعميل'}\n\n`;
-    message += `*${invoice.type === 'Purchase' ? 'المورد' : 'العميل'}:* ${invoice.supplierName}\n`;
-    message += `*الهاتف:* ${invoice.supplierPhone}\n\n`;
-    message += `━━━━━━━━━━━━━━━━\n\n`;
-    message += `*🔧 قطع الغيار:*\n\n`;
+    message += `┌─────────────────────┐\n`;
+    message += `│ *رقم الفاتورة:* ${invoice.invoiceNumber}\n`;
+    message += `│ *التاريخ:* ${formatDate(invoice.date)}\n`;
+    message += `│ *النوع:* ${invoice.type === 'Purchase' ? '🛒 شراء' : '💰 بيع'}\n`;
+    message += `└─────────────────────┘\n\n`;
     
+    message += `*${invoice.type === 'Purchase' ? '👤 بيانات المورد' : '👤 بيانات العميل'}:*\n`;
+    message += `• الاسم: ${invoice.supplierName}\n`;
+    message += `• الهاتف: ${invoice.supplierPhone}\n\n`;
+    
+    message += `*━━━━━━━━━━━━━━━━*\n`;
+    message += `*🔧 قطع الغيار:*\n`;
+    message += `*━━━━━━━━━━━━━━━━*\n\n`;
+    
+    // جدول القطع
+    message += `\`\`\`\n`;
     invoice.items.forEach((item, idx) => {
-      message += `${idx + 1}. *${item.partName}*\n`;
-      message += `   الكمية: ${item.quantity} | السعر: ${item.price.toFixed(3)} KD\n`;
-      message += `   الإجمالي: ${(item.price * item.quantity).toFixed(3)} KD\n\n`;
+      const itemTotal = (item.price * item.quantity).toFixed(3);
+      message += `${idx + 1}. ${item.partName}\n`;
+      message += `   ${item.quantity} × ${item.price.toFixed(3)} = ${itemTotal} KD\n`;
+      message += `\n`;
     });
+    message += `\`\`\`\n`;
     
-    message += `━━━━━━━━━━━━━━━━\n\n`;
-    message += `*💰 الإجمالي الكلي:* ${total.toFixed(3)} KD\n\n`;
-    message += `*حالة الدفع:* ${invoice.paid ? '✅ مدفوع' : '⏳ غير مدفوع'}\n`;
-    message += `*طريقة الدفع:* ${invoice.paymentMethod}\n`;
+    message += `*━━━━━━━━━━━━━━━━*\n`;
+    message += `*💰 الإجمالي الكلي: ${total.toFixed(3)} KD*\n`;
+    message += `*━━━━━━━━━━━━━━━━*\n\n`;
+    
+    message += `*💳 حالة الدفع:*\n`;
+    message += `${invoice.paid ? '✅ مدفوع' : '⏳ غير مدفوع'}\n`;
+    message += `الطريقة: ${invoice.paymentMethod}\n`;
     
     if (invoice.notes) {
       message += `\n*📝 ملاحظات:*\n${invoice.notes}\n`;
     }
     
-    message += `\n━━━━━━━━━━━━━━━━\n`;
+    message += `\n*━━━━━━━━━━━━━━━━*\n`;
     message += `شكراً لتعاملكم معنا! 🙏\n`;
+    message += `*━━━━━━━━━━━━━━━━*\n`;
     
     // إنشاء رابط واتساب
     const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, ''); // إزالة أي أحرف غير رقمية
@@ -315,7 +340,7 @@ function PartsInvoices() {
   function exportToExcel() {
     const exportData = filteredInvoices.map(inv => ({
       'رقم الفاتورة': inv.invoiceNumber,
-      'التاريخ': new Date(inv.date).toLocaleDateString('ar-SA'),
+      'التاريخ': formatDate(inv.date),
       'النوع': inv.type === 'Purchase' ? 'شراء' : 'بيع',
       'المورد/العميل': inv.supplierName,
       'الهاتف': inv.supplierPhone,
@@ -338,12 +363,12 @@ function PartsInvoices() {
     doc.setFontSize(20);
     doc.text('HRR - Parts Invoices', 105, 20, { align: 'center' });
     doc.setFontSize(12);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+    doc.text(`Generated: ${formatDate(new Date())}`, 105, 30, { align: 'center' });
 
     // Table
     const tableData = filteredInvoices.map(inv => [
       inv.invoiceNumber,
-      new Date(inv.date).toLocaleDateString(),
+      formatDate(inv.date),
       inv.type,
       inv.supplierName,
       inv.items.length,
@@ -755,7 +780,7 @@ function PartsInvoices() {
                     {invoice.invoiceNumber}
                   </h3>
                   <div style={{ color: '#999', fontSize: '0.9rem' }}>
-                    📅 {new Date(invoice.date).toLocaleDateString('ar-SA')}
+                    📅 {formatDate(invoice.date)}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>

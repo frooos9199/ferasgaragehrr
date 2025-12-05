@@ -3,6 +3,15 @@ import { useParams } from 'react-router-dom';
 import { db } from './firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
+// Helper function to format date as DD/MM/YYYY
+function formatDate(dateInput) {
+  const date = new Date(dateInput);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 function JobCardPublic() {
   const { id } = useParams();
   const [card, setCard] = useState(null);
@@ -151,13 +160,13 @@ function JobCardPublic() {
           {card.entryDate && (
             <div style={{ fontSize: '0.98rem', color: '#fff', marginBottom: card.expectedDelivery ? '0.8rem' : '0' }}>
               <strong style={{ color: '#3b82f6' }}>📅 Entry Date:</strong>{' '}
-              {new Date(card.entryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              {formatDate(card.entryDate)}
             </div>
           )}
           {card.expectedDelivery && (
             <div style={{ fontSize: '0.98rem', color: '#fff' }}>
               <strong style={{ color: '#3b82f6' }}>🎯 Expected Delivery:</strong>{' '}
-              {new Date(card.expectedDelivery).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              {formatDate(card.expectedDelivery)}
               {(() => {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -333,13 +342,7 @@ function JobCardPublic() {
       )}
       
       <div style={{ fontSize: '0.9rem', color: '#666', textAlign: 'center', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        Created: {new Date(card.createdAt).toLocaleString('en-US', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric', 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        })}
+        Created: {formatDate(card.createdAt)}
       </div>
     </main>
     </>

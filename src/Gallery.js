@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, query, getDocs } from 'firebase/firestore';
 
+// Helper function to format date as DD/MM/YYYY
+function formatDate(dateInput) {
+  const date = new Date(dateInput);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 function Gallery() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -340,11 +349,7 @@ function Gallery() {
                   color: '#888',
                   fontSize: '0.85rem'
                 }}>
-                  🗓️ Completed: {new Date(car.createdAt.seconds * 1000).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
+                  🗓️ Completed: {formatDate(car.createdAt.seconds * 1000)}
                 </div>
               )}
             </div>

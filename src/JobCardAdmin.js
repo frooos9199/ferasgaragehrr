@@ -6,6 +6,15 @@ import 'jspdf-autotable';
 import { db } from './firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 
+// Helper function to format date as DD/MM/YYYY
+function formatDate(dateInput) {
+  const date = new Date(dateInput);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 function JobCardAdmin() {
   // Load cards from Firestore with real-time updates
   const [cards, setCards] = useState([]);
@@ -311,7 +320,7 @@ function JobCardAdmin() {
         'Issues': card.issues ? card.issues.join(', ') : '',
         'Fixed': card.fixed ? card.fixed.join(', ') : '',
         'Notes': card.notes || '',
-        'Created At': new Date(card.createdAt).toLocaleString()
+        'Created At': formatDate(card.createdAt)
       };
     });
 
@@ -341,7 +350,7 @@ function JobCardAdmin() {
     // Date
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Generated: KD {new Date().toLocaleString()}`, 14, 22);
+    doc.text(`Generated: ${formatDate(new Date())}`, 14, 22);
     
     // Statistics
     doc.setFontSize(11);
@@ -1118,7 +1127,7 @@ function JobCardAdmin() {
                 }}>
                   {card.entryDate && (
                     <div style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#3b82f6' }}>📅 Entry:</strong> {new Date(card.entryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      <strong style={{ color: '#3b82f6' }}>📅 Entry:</strong> {formatDate(card.entryDate)}
                       {(() => {
                         const days = Math.floor((new Date() - new Date(card.entryDate)) / (1000 * 60 * 60 * 24));
                         return days > 0 ? <span style={{ color: '#aaa', marginLeft: '0.5rem' }}>({days} days ago)</span> : null;
@@ -1127,7 +1136,7 @@ function JobCardAdmin() {
                   )}
                   {card.expectedDelivery && (
                     <div style={{ fontSize: '0.95rem', color: '#fff' }}>
-                      <strong style={{ color: '#3b82f6' }}>🎯 Expected:</strong> {new Date(card.expectedDelivery).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      <strong style={{ color: '#3b82f6' }}>🎯 Expected:</strong> {formatDate(card.expectedDelivery)}
                       {(() => {
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
@@ -1257,21 +1266,10 @@ function JobCardAdmin() {
               )}
               
               <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem', paddingTop: '0.8rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                Created: {new Date(card.createdAt).toLocaleString('en-US', { 
-                  year: 'numeric', 
-                  month: 'short', 
-                  day: 'numeric', 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
+                Created: {formatDate(card.createdAt)}
                 {card.updatedAt && (
                   <span style={{ marginLeft: '1rem', color: '#ffa500' }}>
-                    | Updated: {new Date(card.updatedAt).toLocaleString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
+                    | Updated: {formatDate(card.updatedAt)}
                   </span>
                 )}
               </div>
