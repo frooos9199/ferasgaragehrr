@@ -280,7 +280,6 @@ function PartsInvoices() {
   }
 
   function sendWhatsApp(invoice) {
-    alert('🔵 تم الضغط على زر واتساب! جاري إنشاء الفاتورة...');
     try {
       console.log('📋 sendWhatsApp started', invoice);
       const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -394,14 +393,19 @@ function PartsInvoices() {
       // رفع PDF على Firebase Storage
       console.log('☁️ Uploading PDF to Firebase...');
       const pdfBlob = pdf.output('blob');
+      console.log('📦 PDF Blob created, size:', pdfBlob.size, 'bytes');
       const fileName = `invoices/Invoice_${invoice.invoiceNumber}_${Date.now()}.pdf`;
+      console.log('📝 File name:', fileName);
       
       const storage = getStorage();
+      console.log('🔥 Firebase Storage instance:', storage);
       const storageRef = ref(storage, fileName);
+      console.log('📍 Storage reference created:', storageRef);
       
       // رفع الملف
+      console.log('⬆️ Starting upload...');
       uploadBytes(storageRef, pdfBlob).then((snapshot) => {
-        console.log('✅ PDF uploaded successfully!');
+        console.log('✅ PDF uploaded successfully!', snapshot);
         
         // الحصول على رابط التحميل
         getDownloadURL(snapshot.ref).then((downloadURL) => {
