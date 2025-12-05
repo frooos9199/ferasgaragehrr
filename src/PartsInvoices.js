@@ -268,6 +268,50 @@ function PartsInvoices() {
     printWindow.document.close();
   }
 
+  function sendWhatsApp(invoice) {
+    const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    // تكوين رسالة واتساب
+    let message = `*🏁 HOT ROD RACING (HRR)*\n`;
+    message += `*Ford Specialist Garage*\n`;
+    message += `📞 +965 50540999\n`;
+    message += `🌐 www.q8hrr.com\n\n`;
+    message += `━━━━━━━━━━━━━━━━\n\n`;
+    message += `*📋 فاتورة قطع غيار*\n\n`;
+    message += `*رقم الفاتورة:* ${invoice.invoiceNumber}\n`;
+    message += `*التاريخ:* ${new Date(invoice.date).toLocaleDateString('ar-SA')}\n`;
+    message += `*النوع:* ${invoice.type === 'Purchase' ? '🛒 شراء من مورد' : '💰 بيع لعميل'}\n\n`;
+    message += `*${invoice.type === 'Purchase' ? 'المورد' : 'العميل'}:* ${invoice.supplierName}\n`;
+    message += `*الهاتف:* ${invoice.supplierPhone}\n\n`;
+    message += `━━━━━━━━━━━━━━━━\n\n`;
+    message += `*🔧 قطع الغيار:*\n\n`;
+    
+    invoice.items.forEach((item, idx) => {
+      message += `${idx + 1}. *${item.partName}*\n`;
+      message += `   الكمية: ${item.quantity} | السعر: ${item.price.toFixed(3)} KD\n`;
+      message += `   الإجمالي: ${(item.price * item.quantity).toFixed(3)} KD\n\n`;
+    });
+    
+    message += `━━━━━━━━━━━━━━━━\n\n`;
+    message += `*💰 الإجمالي الكلي:* ${total.toFixed(3)} KD\n\n`;
+    message += `*حالة الدفع:* ${invoice.paid ? '✅ مدفوع' : '⏳ غير مدفوع'}\n`;
+    message += `*طريقة الدفع:* ${invoice.paymentMethod}\n`;
+    
+    if (invoice.notes) {
+      message += `\n*📝 ملاحظات:*\n${invoice.notes}\n`;
+    }
+    
+    message += `\n━━━━━━━━━━━━━━━━\n`;
+    message += `شكراً لتعاملكم معنا! 🙏\n`;
+    
+    // إنشاء رابط واتساب
+    const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, ''); // إزالة أي أحرف غير رقمية
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    
+    // فتح واتساب
+    window.open(whatsappUrl, '_blank');
+  }
+
   function exportToExcel() {
     const exportData = filteredInvoices.map(inv => ({
       'رقم الفاتورة': inv.invoiceNumber,
@@ -776,6 +820,22 @@ function PartsInvoices() {
                   }}
                 >
                   🖨️ طباعة
+                </button>
+                <button
+                  onClick={() => sendWhatsApp(invoice)}
+                  style={{
+                    flex: 1,
+                    minWidth: 120,
+                    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '0.7rem',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  📱 واتساب
                 </button>
                 <button
                   onClick={() => handleEdit(invoice)}
