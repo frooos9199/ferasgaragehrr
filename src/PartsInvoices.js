@@ -389,35 +389,57 @@ function PartsInvoices() {
       pdf.text('Thank you for your business!', 105, footerY, { align: 'center' });
       console.log('✅ PDF content complete');
       
-      // حفظ PDF وفتحه
-      const pdfName = `Invoice_${invoice.invoiceNumber}_${formatDate(invoice.date).replace(/\//g, '-')}.pdf`;
-      console.log('💾 Saving PDF as:', pdfName);
-      pdf.save(pdfName);
-      console.log('✅ PDF saved successfully');
+      // تحويل PDF إلى صورة
+      console.log('🖼️ Converting PDF to image...');
+      const pdfDataUri = pdf.output('dataurlstring');
       
-      // رسالة واتساب مع تنبيه بتحميل PDF
-      let message = `*🏁 HOT ROD RACING*\n`;
-      message += `*Ford Specialist Garage*\n\n`;
-      message += `📋 *فاتورة رقم:* ${invoice.invoiceNumber}\n`;
-      message += `📅 *التاريخ:* ${formatDate(invoice.date)}\n`;
-      message += `💰 *المبلغ الإجمالي:* ${total.toFixed(3)} KD\n\n`;
-      message += `✅ تم تحميل الفاتورة بصيغة PDF على جهازك\n`;
-      message += `الرجاء إرفاق الملف في الرسالة\n\n`;
-      message += `📱 للاستفسار: +965 50540999\n`;
-      message += `🌐 www.q8hrr.com`;
-    
-      // إنشاء رابط واتساب
-      const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      console.log('📱 WhatsApp URL created for:', phoneNumber);
+      // إنشاء صورة من PDF
+      const img = new Image();
+      img.src = pdfDataUri;
       
-      // عرض تنبيه للمستخدم
-      console.log('🎯 Opening WhatsApp...');
-      setTimeout(() => {
-        alert(`✅ تم تحميل الفاتورة: ${pdfName}\n\nالآن سيفتح واتساب - يرجى إرفاق الملف PDF المحمل مع الرسالة`);
-        window.open(whatsappUrl, '_blank');
-        console.log('✅ WhatsApp opened successfully!');
-      }, 500);
+      img.onload = () => {
+        // إنشاء canvas لتحويل PDF لصورة
+        const canvas = document.createElement('canvas');
+        canvas.width = 794;  // A4 width in pixels (210mm @ 96dpi)
+        canvas.height = 1123; // A4 height in pixels (297mm @ 96dpi)
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // تحويل لصورة PNG
+        canvas.toBlob((blob) => {
+          const imageName = `Invoice_${invoice.invoiceNumber}_${formatDate(invoice.date).replace(/\//g, '-')}.png`;
+          
+          // تحميل الصورة
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = imageName;
+          link.click();
+          console.log('✅ Invoice image downloaded:', imageName);
+          
+          // رسالة واتساب
+          let message = `*🏁 HOT ROD RACING*\n`;
+          message += `*Ford Specialist Garage*\n\n`;
+          message += `📋 *فاتورة رقم:* ${invoice.invoiceNumber}\n`;
+          message += `📅 *التاريخ:* ${formatDate(invoice.date)}\n`;
+          message += `💰 *المبلغ الإجمالي:* ${total.toFixed(3)} KD\n\n`;
+          message += `✅ تم تحميل الفاتورة كصورة على جهازك\n`;
+          message += `الرجاء إرفاق الصورة في الرسالة\n\n`;
+          message += `📱 للاستفسار: +965 50540999\n`;
+          message += `🌐 www.q8hrr.com`;
+        
+          // إنشاء رابط واتساب
+          const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
+          const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+          console.log('📱 WhatsApp URL created for:', phoneNumber);
+          
+          // فتح واتساب
+          setTimeout(() => {
+            alert(`✅ تم تحميل الفاتورة: ${imageName}\n\nالآن سيفتح واتساب - يرجى إرفاق الصورة المحملة مع الرسالة`);
+            window.open(whatsappUrl, '_blank');
+            console.log('✅ WhatsApp opened successfully!');
+          }, 500);
+        }, 'image/png');
+      };
     } catch (error) {
       console.error('❌ Error in sendWhatsApp:', error);
       console.error('Error name:', error.name);
