@@ -429,11 +429,13 @@ function PartsInvoices() {
           console.log('✅ WhatsApp opened successfully!');
         }).catch((error) => {
           console.error('❌ Error getting download URL:', error);
-          alert('❌ حدث خطأ في الحصول على رابط التحميل');
+          alert(`❌ حدث خطأ في الحصول على رابط التحميل:\n\n${error.message}`);
         });
       }).catch((error) => {
         console.error('❌ Error uploading PDF:', error);
-        alert('❌ حدث خطأ في رفع الفاتورة على Firebase');
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        alert(`❌ حدث خطأ في رفع الفاتورة:\n\n${error.code}\n${error.message}\n\nتأكد من إعدادات Firebase Storage Rules`);
       });
     } catch (error) {
       console.error('❌ Error in sendWhatsApp:', error);
