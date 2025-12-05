@@ -365,7 +365,7 @@ function PartsInvoices() {
       console.log('✅ Table added to PDF');
       
       // المجموع
-      const finalY = pdf.previousAutoTable.finalY + 10;
+      const finalY = pdf.lastAutoTable.finalY + 10;
       pdf.setFillColor(255, 107, 0);
       pdf.rect(15, finalY, 180, 15, 'F');
       pdf.setFontSize(14);
