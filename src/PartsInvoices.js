@@ -4,6 +4,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, order
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import html2canvas from 'html2canvas';
 
 // Helper function to format date as DD/MM/YYYY
 function formatDate(dateInput) {
@@ -277,64 +278,131 @@ function PartsInvoices() {
     printWindow.document.close();
   }
 
-  function sendWhatsApp(invoice) {
+  async function sendWhatsApp(invoice) {
     const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
-    // تكوين رسالة واتساب
-    let message = `*━━━━━━━━━━━━━━━━*\n`;
-    message += `*🏁 HOT ROD RACING*\n`;
-    message += `*Ford Specialist Garage*\n`;
-    message += `📞 +965 50540999\n`;
-    message += `🌐 www.q8hrr.com\n`;
-    message += `*━━━━━━━━━━━━━━━━*\n\n`;
+    // إنشاء PDF من الفاتورة
+    const pdf = new jsPDF('p', 'mm', 'a4');
     
-    message += `*📋 فاتورة قطع غيار*\n\n`;
-    message += `┌─────────────────────┐\n`;
-    message += `│ *رقم الفاتورة:* ${invoice.invoiceNumber}\n`;
-    message += `│ *التاريخ:* ${formatDate(invoice.date)}\n`;
-    message += `│ *النوع:* ${invoice.type === 'Purchase' ? '🛒 شراء' : '💰 بيع'}\n`;
-    message += `└─────────────────────┘\n\n`;
+    // الخلفية
+    pdf.setFillColor(240, 240, 240);
+    pdf.rect(0, 0, 210, 297, 'F');
     
-    message += `*${invoice.type === 'Purchase' ? '👤 بيانات المورد' : '👤 بيانات العميل'}:*\n`;
-    message += `• الاسم: ${invoice.supplierName}\n`;
-    message += `• الهاتف: ${invoice.supplierPhone}\n\n`;
+    // Header مع خلفية ملونة
+    pdf.setFillColor(0, 217, 255);
+    pdf.rect(0, 0, 210, 50, 'F');
     
-    message += `*━━━━━━━━━━━━━━━━*\n`;
-    message += `*🔧 قطع الغيار:*\n`;
-    message += `*━━━━━━━━━━━━━━━━*\n\n`;
+    // Logo text
+    pdf.setFontSize(28);
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('HOT ROD RACING', 105, 20, { align: 'center' });
+    
+    pdf.setFontSize(14);
+    pdf.text('Ford Specialist Garage', 105, 28, { align: 'center' });
+    
+    pdf.setFontSize(10);
+    pdf.text('+965 50540999 | www.q8hrr.com', 105, 35, { align: 'center' });
+    
+    // عنوان الفاتورة
+    pdf.setFillColor(255, 107, 0);
+    pdf.rect(0, 50, 210, 15, 'F');
+    pdf.setFontSize(16);
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('Parts Invoice - فاتورة قطع غيار', 105, 60, { align: 'center' });
+    
+    // معلومات الفاتورة
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(15, 75, 180, 30, 'F');
+    pdf.setDrawColor(200, 200, 200);
+    pdf.rect(15, 75, 180, 30, 'S');
+    
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(11);
+    pdf.text(`Invoice #: ${invoice.invoiceNumber}`, 20, 85);
+    pdf.text(`Date: ${formatDate(invoice.date)}`, 20, 92);
+    pdf.text(`Type: ${invoice.type === 'Purchase' ? 'Purchase' : 'Sale'}`, 20, 99);
+    
+    pdf.text(`${invoice.type === 'Purchase' ? 'Supplier' : 'Customer'}: ${invoice.supplierName}`, 110, 85);
+    pdf.text(`Phone: ${invoice.supplierPhone}`, 110, 92);
+    pdf.text(`Payment: ${invoice.paid ? 'Paid' : 'Unpaid'}`, 110, 99);
     
     // جدول القطع
-    message += `\`\`\`\n`;
-    invoice.items.forEach((item, idx) => {
-      const itemTotal = (item.price * item.quantity).toFixed(3);
-      message += `${idx + 1}. ${item.partName}\n`;
-      message += `   ${item.quantity} × ${item.price.toFixed(3)} = ${itemTotal} KD\n`;
-      message += `\n`;
+    const tableData = invoice.items.map((item, idx) => [
+      idx + 1,
+      item.partName,
+      item.quantity,
+      item.price.toFixed(3) + ' KD',
+      (item.price * item.quantity).toFixed(3) + ' KD'
+    ]);
+    
+    pdf.autoTable({
+      startY: 115,
+      head: [['#', 'Part Name', 'Qty', 'Price', 'Total']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [0, 217, 255],
+        textColor: [255, 255, 255],
+        fontSize: 11,
+        fontStyle: 'bold'
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      }
     });
-    message += `\`\`\`\n`;
     
-    message += `*━━━━━━━━━━━━━━━━*\n`;
-    message += `*💰 الإجمالي الكلي: ${total.toFixed(3)} KD*\n`;
-    message += `*━━━━━━━━━━━━━━━━*\n\n`;
+    // المجموع
+    const finalY = pdf.lastAutoTable.finalY + 10;
+    pdf.setFillColor(255, 107, 0);
+    pdf.rect(15, finalY, 180, 15, 'F');
+    pdf.setFontSize(14);
+    pdf.setTextColor(255, 255, 255);
+    pdf.text(`TOTAL: ${total.toFixed(3)} KD`, 105, finalY + 10, { align: 'center' });
     
-    message += `*💳 حالة الدفع:*\n`;
-    message += `${invoice.paid ? '✅ مدفوع' : '⏳ غير مدفوع'}\n`;
-    message += `الطريقة: ${invoice.paymentMethod}\n`;
-    
+    // الملاحظات
     if (invoice.notes) {
-      message += `\n*📝 ملاحظات:*\n${invoice.notes}\n`;
+      pdf.setFillColor(255, 243, 205);
+      pdf.rect(15, finalY + 20, 180, 20, 'F');
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(10);
+      pdf.text('Notes:', 20, finalY + 28);
+      pdf.text(invoice.notes, 20, finalY + 35);
     }
     
-    message += `\n*━━━━━━━━━━━━━━━━*\n`;
-    message += `شكراً لتعاملكم معنا! 🙏\n`;
-    message += `*━━━━━━━━━━━━━━━━*\n`;
+    // Footer
+    const footerY = 280;
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text('Thank you for your business! - شكراً لتعاملكم معنا', 105, footerY, { align: 'center' });
+    
+    // حفظ PDF وفتحه
+    const pdfName = `Invoice_${invoice.invoiceNumber}_${formatDate(invoice.date).replace(/\//g, '-')}.pdf`;
+    pdf.save(pdfName);
+    
+    // رسالة واتساب مع تنبيه بتحميل PDF
+    let message = `*🏁 HOT ROD RACING*\n`;
+    message += `*Ford Specialist Garage*\n\n`;
+    message += `📋 *فاتورة رقم:* ${invoice.invoiceNumber}\n`;
+    message += `📅 *التاريخ:* ${formatDate(invoice.date)}\n`;
+    message += `� *المبلغ الإجمالي:* ${total.toFixed(3)} KD\n\n`;
+    message += `✅ تم تحميل الفاتورة بصيغة PDF على جهازك\n`;
+    message += `الرجاء إرفاق الملف في الرسالة\n\n`;
+    message += `📱 للاستفسار: +965 50540999\n`;
+    message += `🌐 www.q8hrr.com`;
     
     // إنشاء رابط واتساب
-    const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, ''); // إزالة أي أحرف غير رقمية
+    const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     
-    // فتح واتساب
-    window.open(whatsappUrl, '_blank');
+    // عرض تنبيه للمستخدم
+    setTimeout(() => {
+      alert(`✅ تم تحميل الفاتورة: ${pdfName}\n\nالآن سيفتح واتساب - يرجى إرفاق الملف PDF المحمل مع الرسالة`);
+      window.open(whatsappUrl, '_blank');
+    }, 500);
   }
 
   function exportToExcel() {
