@@ -98,6 +98,8 @@ function PartsInvoices() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    console.log('🔵 handleSubmit started');
+    console.log('📋 Current form data:', form);
 
     if (form.items.length === 0) {
       alert('⚠️ الرجاء إضافة قطعة واحدة على الأقل');
@@ -105,25 +107,33 @@ function PartsInvoices() {
     }
 
     try {
+      console.log('📝 Preparing invoice data...');
       const invoiceData = {
         ...form,
         total: calculateTotal(),
         updatedAt: serverTimestamp()
       };
+      console.log('💾 Invoice data prepared:', invoiceData);
 
       if (editingId) {
+        console.log('✏️ Updating invoice:', editingId);
         await updateDoc(doc(db, 'partsInvoices', editingId), invoiceData);
+        console.log('✅ Update successful!');
         alert('✅ تم تحديث الفاتورة بنجاح!');
         setEditingId(null);
       } else {
-        await addDoc(collection(db, 'partsInvoices'), {
+        console.log('➕ Adding new invoice to Firestore...');
+        const docRef = await addDoc(collection(db, 'partsInvoices'), {
           ...invoiceData,
           createdAt: serverTimestamp()
         });
+        console.log('✅ Invoice added successfully! ID:', docRef.id);
         alert('✅ تم إضافة الفاتورة بنجاح!');
       }
 
+      console.log('🔄 Calling resetForm...');
       resetForm();
+      console.log('✅ Form reset complete');
     } catch (error) {
       console.error('Error saving invoice:', error);
       console.error('Error details:', {
