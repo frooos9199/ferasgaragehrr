@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -390,58 +389,40 @@ function PartsInvoices() {
       pdf.text('Thank you for your business!', 105, footerY, { align: 'center' });
       console.log('✅ PDF content complete');
       
-      // رفع PDF على Firebase Storage
-      console.log('☁️ Uploading PDF to Firebase...');
-      const pdfBlob = pdf.output('blob');
-      console.log('📦 PDF Blob created, size:', pdfBlob.size, 'bytes');
-      const fileName = `invoices/Invoice_${invoice.invoiceNumber}_${Date.now()}.pdf`;
-      console.log('📝 File name:', fileName);
+      // حفظ PDF محلياً
+      const pdfName = `Invoice_${invoice.invoiceNumber}_${formatDate(invoice.date).replace(/\//g, '-')}.pdf`;
+      console.log('� Saving PDF as:', pdfName);
+      pdf.save(pdfName);
+      console.log('✅ PDF saved successfully');
       
-      const storage = getStorage();
-      console.log('🔥 Firebase Storage instance:', storage);
-      const storageRef = ref(storage, fileName);
-      console.log('📍 Storage reference created:', storageRef);
+      // رسالة واتساب نصية فقط
+      let message = `*🏁 HOT ROD RACING*\n`;
+      message += `*Ford Specialist Garage*\n\n`;
+      message += `📋 *فاتورة رقم:* ${invoice.invoiceNumber}\n`;
+      message += `📅 *التاريخ:* ${formatDate(invoice.date)}\n`;
+      message += `💰 *المبلغ الإجمالي:* ${total.toFixed(3)} KD\n`;
+      message += `� *طريقة الدفع:* ${invoice.paymentMethod}\n`;
+      message += `✅ *الحالة:* ${invoice.paid ? 'مدفوعة' : 'غير مدفوعة'}\n\n`;
       
-      // رفع الملف
-      console.log('⬆️ Starting upload...');
-      uploadBytes(storageRef, pdfBlob).then((snapshot) => {
-        console.log('✅ PDF uploaded successfully!', snapshot);
-        
-        // الحصول على رابط التحميل
-        getDownloadURL(snapshot.ref).then((downloadURL) => {
-          console.log('📎 Download URL:', downloadURL);
-          
-          // رسالة واتساب مع لينك التحميل
-          let message = `*🏁 HOT ROD RACING*\n`;
-          message += `*Ford Specialist Garage*\n\n`;
-          message += `📋 *فاتورة رقم:* ${invoice.invoiceNumber}\n`;
-          message += `📅 *التاريخ:* ${formatDate(invoice.date)}\n`;
-          message += `💰 *المبلغ الإجمالي:* ${total.toFixed(3)} KD\n\n`;
-          message += `📄 *تحميل الفاتورة PDF:*\n`;
-          message += `${downloadURL}\n\n`;
-          message += `✅ اضغط على الرابط لتحميل الفاتورة\n\n`;
-          message += `📱 للاستفسار: +965 50540999\n`;
-          message += `🌐 www.q8hrr.com`;
-        
-          // إنشاء رابط واتساب
-          const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
-          const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-          console.log('📱 WhatsApp URL created for:', phoneNumber);
-          
-          // فتح واتساب
-          alert(`✅ تم رفع الفاتورة بنجاح!\n\nسيتم فتح واتساب مع رابط تحميل الفاتورة`);
-          window.open(whatsappUrl, '_blank');
-          console.log('✅ WhatsApp opened successfully!');
-        }).catch((error) => {
-          console.error('❌ Error getting download URL:', error);
-          alert(`❌ حدث خطأ في الحصول على رابط التحميل:\n\n${error.message}`);
-        });
-      }).catch((error) => {
-        console.error('❌ Error uploading PDF:', error);
-        console.error('Error code:', error.code);
-        console.error('Error message:', error.message);
-        alert(`❌ حدث خطأ في رفع الفاتورة:\n\n${error.code}\n${error.message}\n\nتأكد من إعدادات Firebase Storage Rules`);
+      // تفاصيل القطع
+      message += `*📦 القطع:*\n`;
+      invoice.items.forEach((item, idx) => {
+        message += `${idx + 1}. ${item.partName} - ${item.quantity} × ${item.price.toFixed(3)} KD\n`;
       });
+      
+      message += `\n📱 للاستفسار: +965 50540999\n`;
+      message += `🌐 www.q8hrr.com`;
+    
+      // إنشاء رابط واتساب
+      const phoneNumber = invoice.supplierPhone.replace(/[^0-9]/g, '');
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      console.log('📱 WhatsApp URL created for:', phoneNumber);
+      
+      // فتح واتساب
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+        console.log('✅ WhatsApp opened successfully!');
+      }, 500);
     } catch (error) {
       console.error('❌ Error in sendWhatsApp:', error);
       console.error('Error name:', error.name);
