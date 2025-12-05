@@ -280,6 +280,7 @@ function PartsInvoices() {
   }
 
   function sendWhatsApp(invoice) {
+    alert('🔵 تم الضغط على زر واتساب! جاري إنشاء الفاتورة...');
     try {
       console.log('📋 sendWhatsApp started', invoice);
       const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
