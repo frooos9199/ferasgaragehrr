@@ -8,6 +8,7 @@ import JobCardAdmin from './JobCardAdmin';
 import JobCardPublic from './JobCardPublic';
 import Login from './Login';
 import Gallery from './Gallery';
+import PartsInvoices from './PartsInvoices';
 
 const navCSS = `
   .navbar-lmr { 
@@ -204,6 +205,7 @@ function Navbar({ isLoggedIn, onLogout }) {
     { to: '/gallery', label: 'Our Work', highlight: true },
     { to: '/business', label: 'Business Subscription' },
     { to: '/jobcard-admin', label: 'Workshop', highlight: false, protected: true },
+    { to: '/parts-invoices', label: '🔧 Parts Invoices', highlight: false, protected: true },
     { to: '/privacy', label: 'Privacy Policy', highlight: false },
   ];
   // Close menu when clicking outside or on overlay
@@ -352,6 +354,11 @@ function App() {
           <Route path="/jobcard-admin" element={
             <ProtectedRoute>
               <JobCardAdmin />
+            </ProtectedRoute>
+          } />
+          <Route path="/parts-invoices" element={
+            <ProtectedRoute>
+              <PartsInvoices />
             </ProtectedRoute>
           } />
           <Route path="/jobcard/:id" element={<JobCardPublic />} />
