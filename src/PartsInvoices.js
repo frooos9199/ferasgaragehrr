@@ -278,11 +278,12 @@ function PartsInvoices() {
     printWindow.document.close();
   }
 
-  async function sendWhatsApp(invoice) {
-    const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // إنشاء PDF من الفاتورة
-    const pdf = new jsPDF('p', 'mm', 'a4');
+  function sendWhatsApp(invoice) {
+    try {
+      const total = invoice.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      // إنشاء PDF من الفاتورة
+      const pdf = new jsPDF('p', 'mm', 'a4');
     
     // الخلفية
     pdf.setFillColor(240, 240, 240);
@@ -399,10 +400,14 @@ function PartsInvoices() {
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     
     // عرض تنبيه للمستخدم
-    setTimeout(() => {
-      alert(`✅ تم تحميل الفاتورة: ${pdfName}\n\nالآن سيفتح واتساب - يرجى إرفاق الملف PDF المحمل مع الرسالة`);
-      window.open(whatsappUrl, '_blank');
-    }, 500);
+      setTimeout(() => {
+        alert(`✅ تم تحميل الفاتورة: ${pdfName}\n\nالآن سيفتح واتساب - يرجى إرفاق الملف PDF المحمل مع الرسالة`);
+        window.open(whatsappUrl, '_blank');
+      }, 500);
+    } catch (error) {
+      console.error('Error in sendWhatsApp:', error);
+      alert('❌ حدث خطأ في إنشاء الفاتورة. حاول مرة أخرى.');
+    }
   }
 
   function exportToExcel() {
