@@ -52,10 +52,15 @@ export default function HomePage() {
           setShowAuth(false)
           setAuthForm({ name: '', email: '', phone: '', password: '' })
           navigate('/admin')
-        } else {
-          await login(authForm.email, authForm.password)
+          return
+        }
+        const buyerSnap = await getDoc(doc(db, 'buyers', cred.user.uid))
+        if (buyerSnap.exists()) {
           setShowAuth(false)
           setAuthForm({ name: '', email: '', phone: '', password: '' })
+        } else {
+          setAuthError('Account not found. Please register first.')
+          await auth.signOut()
         }
       }
     } catch (e) {

@@ -40,7 +40,7 @@ export function StoreAuthProvider({ children }) {
       setBuyer(data)
       return data
     }
-    throw new Error('Buyer profile not found')
+    return null
   }
 
   const logout = async () => {
