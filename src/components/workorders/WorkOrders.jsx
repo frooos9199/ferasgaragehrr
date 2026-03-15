@@ -5,15 +5,15 @@ import { useAuth } from '../../hooks/useAuth'
 import { WORK_ORDER_STATUS, STATUS_COLORS, WORK_ORDER_TEMPLATES } from '../../config/constants'
 import { generateOrderNumber, formatDate, formatCurrency, sendWhatsApp } from '../../utils/helpers'
 import { WHATSAPP_NUMBER } from '../../config/constants'
-import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2 } from 'react-icons/fi'
+import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2, FiX } from 'react-icons/fi'
 import { storage } from '../../config/firebase'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import toast from 'react-hot-toast'
 
 export default function WorkOrders() {
   const { t } = useTranslation()
   const { userData, isAdmin } = useAuth()
-  const { data: orders, add, update } = useCollection('workOrders')
+  const { data: orders, add, update, remove: removeOrder } = useCollection('workOrders')
   const { data: cars } = useCollection('cars')
   const { data: customers } = useCollection('customers')
   const { data: inventoryItems } = useCollection('inventory')
@@ -152,6 +152,35 @@ export default function WorkOrders() {
     sendWhatsApp(order.customerPhone, msg)
   }
 
+  const deletePhoto = async (order, photoIdx) => {
+    if (!confirm('Delete this photo?')) return
+    const photo = order.photos[photoIdx]
+    try {
+      if (photo.url?.includes('firebasestorage')) {
+        const photoRef = ref(storage, photo.url)
+        await deleteObject(photoRef)
+      }
+    } catch (e) { console.log('Storage delete skip:', e) }
+    const photos = order.photos.filter((_, i) => i !== photoIdx)
+    await update(order.id, { photos })
+    toast.success('🗑️')
+  }
+
+  const deleteOrder = async (order) => {
+    if (!confirm(t('confirm_delete'))) return
+    // Delete photos from storage
+    for (const photo of (order.photos || [])) {
+      try {
+        if (photo.url?.includes('firebasestorage')) {
+          await deleteObject(ref(storage, photo.url))
+        }
+      } catch (e) { console.log('skip:', e) }
+    }
+    await removeOrder(order.id)
+    setExpandedId(null)
+    toast.success('🗑️ Order deleted')
+  }
+
   const customerCars = cars.filter(c => c.customerId === form.customerId)
 
   return (
@@ -267,6 +296,7 @@ export default function WorkOrders() {
                         <div key={i} className="relative group">
                           <img src={p.url} alt="" className="w-full h-20 object-cover rounded-lg" />
                           <span className="absolute top-1 start-1 badge bg-black/70 text-white text-xs">{t(p.phase)}</span>
+                          <button onClick={() => deletePhoto(order, i)} className="absolute top-1 end-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"><FiX size={12} /></button>
                         </div>
                       ))}
                     </div>
@@ -309,6 +339,11 @@ export default function WorkOrders() {
                   <button onClick={() => sendClientLink(order)} className="btn-secondary flex items-center gap-1 text-sm py-2 px-3 md:px-6">
                     <FiSend /> {t('send_whatsapp')}
                   </button>
+                  {isAdmin && (
+                    <button onClick={() => deleteOrder(order)} className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1 text-sm py-2 px-3 md:px-6 rounded-lg">
+                      <FiTrash2 /> {t('delete')}
+                    </button>
+                  )}
                 </div>
               </div>
             )}

@@ -2,23 +2,22 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { formatCurrency, formatDate, sendInvoiceWhatsApp, generateOrderNumber } from '../../utils/helpers'
-import { FiPlus, FiSend, FiFileText, FiSearch, FiPrinter } from 'react-icons/fi'
+import { FiPlus, FiSend, FiSearch, FiPrinter, FiEdit2, FiTrash2, FiX } from 'react-icons/fi'
 import { generateInvoicePDF } from '../../utils/pdfGenerator'
 import toast from 'react-hot-toast'
 
 export default function Invoices() {
   const { t } = useTranslation()
-  const { data: invoices, add } = useCollection('invoices')
+  const { data: invoices, add, update, remove } = useCollection('invoices')
   const { data: orders } = useCollection('workOrders')
-  const { data: customers } = useCollection('customers')
-  const { data: cars } = useCollection('cars')
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [form, setForm] = useState({ orderId: '', laborCost: 0, items: [{ name: '', price: 0 }] })
 
   const filtered = invoices
-    .filter(i => i.customerName?.includes(search) || i.number?.includes(search) || i.carModel?.includes(search))
+    .filter(i => !search || i.customerName?.toLowerCase().includes(search.toLowerCase()) || i.number?.includes(search) || i.carModel?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
   const handleAddItem = () => setForm({ ...form, items: [...form.items, { name: '', price: 0 }] })
@@ -29,28 +28,61 @@ export default function Invoices() {
   }
   const removeItem = (idx) => setForm({ ...form, items: form.items.filter((_, i) => i !== idx) })
 
-  const handleCreate = async () => {
-    const order = orders.find(o => o.id === form.orderId)
-    if (!order) return toast.error('Select work order')
-    const total = form.items.reduce((s, i) => s + i.price, 0) + Number(form.laborCost)
-    await add({
-      number: generateOrderNumber().replace('HRR', 'INV'),
-      orderId: order.id,
-      orderNumber: order.orderNumber,
-      customerId: order.customerId,
-      customerName: order.customerName,
-      customerPhone: order.customerPhone,
-      carId: order.carId,
-      carModel: order.carModel,
-      carYear: order.carYear,
-      carPlate: order.carPlate,
-      items: form.items.filter(i => i.name),
-      laborCost: Number(form.laborCost),
-      total,
-    })
+  const handleSave = async () => {
+    const total = form.items.reduce((s, i) => s + (Number(i.price) || 0), 0) + (Number(form.laborCost) || 0)
+
+    if (editingId) {
+      await update(editingId, {
+        items: form.items.filter(i => i.name),
+        laborCost: Number(form.laborCost),
+        total,
+      })
+      toast.success('✅ Invoice updated!')
+    } else {
+      const order = orders.find(o => o.id === form.orderId)
+      if (!order) return toast.error('Select work order')
+      await add({
+        number: generateOrderNumber().replace('HRR', 'INV'),
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        customerId: order.customerId,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        carId: order.carId,
+        carModel: order.carModel,
+        carYear: order.carYear,
+        carPlate: order.carPlate,
+        items: form.items.filter(i => i.name),
+        laborCost: Number(form.laborCost),
+        total,
+      })
+      toast.success('🧾 Invoice created!')
+    }
+    resetForm()
+  }
+
+  const resetForm = () => {
     setShowForm(false)
+    setEditingId(null)
     setForm({ orderId: '', laborCost: 0, items: [{ name: '', price: 0 }] })
-    toast.success('🧾 Invoice created!')
+  }
+
+  const startEdit = (inv) => {
+    setEditingId(inv.id)
+    setForm({
+      orderId: inv.orderId || '',
+      laborCost: inv.laborCost || 0,
+      items: inv.items?.length ? [...inv.items] : [{ name: '', price: 0 }]
+    })
+    setShowForm(true)
+    setSelectedInvoice(null)
+  }
+
+  const handleDelete = async (inv) => {
+    if (!confirm(t('confirm_delete'))) return
+    await remove(inv.id)
+    setSelectedInvoice(null)
+    toast.success('🗑️ Invoice deleted')
   }
 
   const handleSendWhatsApp = (inv) => {
@@ -66,14 +98,11 @@ export default function Invoices() {
     toast.success('📄 PDF Downloaded!')
   }
 
-  // Auto-fill from work order
   const onSelectOrder = (orderId) => {
     const order = orders.find(o => o.id === orderId)
     if (order) {
-      const items = [
-        ...(order.parts || []).map(p => ({ name: p.name, price: p.price * p.quantity })),
-      ]
-      if (items.length === 0) items.push({ name: '', price: 0 })
+      const items = (order.parts || []).map(p => ({ name: p.name, price: p.price * p.quantity }))
+      if (!items.length) items.push({ name: '', price: 0 })
       setForm({ orderId, laborCost: order.laborCost || 0, items })
     }
   }
@@ -82,25 +111,29 @@ export default function Invoices() {
     <div>
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h2 className="font-heading text-xl md:text-2xl font-bold">{t('invoices')}</h2>
-        <button onClick={() => setShowForm(!showForm)} className="btn-primary flex items-center gap-2 text-sm md:text-base py-2 px-3 md:px-6">
+        <button onClick={() => { resetForm(); setShowForm(!showForm) }} className="btn-primary flex items-center gap-2 text-sm md:text-base py-2 px-3 md:px-6">
           <FiPlus /> {t('add')}
         </button>
       </div>
 
-      {/* بحث */}
       <div className="relative mb-4">
         <FiSearch className="absolute top-3.5 start-4 text-hrr-silver" />
         <input type="text" placeholder={`${t('search')}...`} value={search} onChange={e => setSearch(e.target.value)} className="input-field ps-10" />
       </div>
 
-      {/* فورم إضافة */}
       {showForm && (
         <div className="card mb-6 border-hrr-red/30">
-          <h3 className="font-heading font-bold mb-4">{t('invoice')}</h3>
-          <select value={form.orderId} onChange={e => onSelectOrder(e.target.value)} className="input-field mb-3">
-            <option value="">{t('work_orders')}...</option>
-            {orders.map(o => <option key={o.id} value={o.id}>{o.orderNumber} - {o.customerName} - Ford {o.carModel}</option>)}
-          </select>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-heading font-bold">{editingId ? t('edit') + ' ' + t('invoice') : t('invoice')}</h3>
+            <button onClick={resetForm} className="text-hrr-silver hover:text-white"><FiX /></button>
+          </div>
+
+          {!editingId && (
+            <select value={form.orderId} onChange={e => onSelectOrder(e.target.value)} className="input-field mb-3">
+              <option value="">{t('work_orders')}...</option>
+              {orders.map(o => <option key={o.id} value={o.id}>{o.orderNumber} - {o.customerName} - Ford {o.carModel}</option>)}
+            </select>
+          )}
 
           <label className="text-sm text-hrr-silver mb-1 block">{t('parts_cost')}</label>
           {form.items.map((item, idx) => (
@@ -125,13 +158,12 @@ export default function Invoices() {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={handleCreate} className="btn-primary">{t('save')}</button>
-            <button onClick={() => setShowForm(false)} className="btn-secondary">{t('cancel')}</button>
+            <button onClick={handleSave} className="btn-primary">{t('save')}</button>
+            <button onClick={resetForm} className="btn-secondary">{t('cancel')}</button>
           </div>
         </div>
       )}
 
-      {/* قائمة الفواتير */}
       <div className="space-y-3">
         {filtered.map(inv => (
           <div key={inv.id} className="card">
@@ -148,16 +180,13 @@ export default function Invoices() {
               </div>
               <div className="flex items-center gap-2 md:gap-3 ms-2 shrink-0">
                 <span className="font-bold text-hrr-gold text-sm md:text-lg">{formatCurrency(inv.total)}</span>
-                <button onClick={() => handleSendWhatsApp(inv)} className="btn-primary text-xs md:text-sm py-1.5 px-2 md:px-3" title="Send WhatsApp">
-                  <FiSend />
-                </button>
-                <button onClick={() => generatePDF(inv)} className="btn-secondary text-xs md:text-sm py-1.5 px-2 md:px-3 hidden sm:flex" title="Download PDF">
-                  <FiPrinter />
-                </button>
+                <button onClick={() => handleSendWhatsApp(inv)} className="btn-primary text-xs md:text-sm py-1.5 px-2 md:px-3" title="WhatsApp"><FiSend /></button>
+                <button onClick={() => generatePDF(inv)} className="btn-secondary text-xs md:text-sm py-1.5 px-2 md:px-3 hidden sm:flex" title="PDF"><FiPrinter /></button>
+                <button onClick={() => startEdit(inv)} className="text-blue-400 hover:text-blue-300 p-1" title="Edit"><FiEdit2 size={16} /></button>
+                <button onClick={() => handleDelete(inv)} className="text-red-400 hover:text-red-300 p-1" title="Delete"><FiTrash2 size={16} /></button>
               </div>
             </div>
 
-            {/* تفاصيل الفاتورة */}
             {selectedInvoice?.id === inv.id && (
               <div className="mt-4 pt-4 border-t border-hrr-silver/10">
                 <div className="bg-hrr-steel rounded-lg p-4 space-y-2">
