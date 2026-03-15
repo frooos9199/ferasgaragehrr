@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCollection } from '../hooks/useCollection'
 import { useStoreAuth } from '../hooks/useStoreAuth'
 import { formatCurrency } from '../utils/helpers'
 import { WHATSAPP_NUMBER } from '../config/constants'
+import { auth, db } from '../config/firebase'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 import {
   FiShoppingBag, FiUser, FiLogOut, FiSearch, FiMessageCircle,
   FiTool, FiCpu, FiFileText, FiPackage, FiChevronRight, FiPhone, FiMail, FiMapPin, FiArrowRight
@@ -31,19 +34,36 @@ export default function HomePage() {
     !search || p.name?.toLowerCase().includes(search.toLowerCase())
   )
 
+  const navigate = useNavigate()
+
   const handleAuth = async () => {
     setAuthError('')
     try {
       if (isRegister) {
         if (!authForm.name || !authForm.email || !authForm.phone || !authForm.password) return setAuthError('Fill all fields')
         await register(authForm.name, authForm.email, authForm.phone, authForm.password)
+        setShowAuth(false)
+        setAuthForm({ name: '', email: '', phone: '', password: '' })
       } else {
         if (!authForm.email || !authForm.password) return setAuthError('Fill all fields')
-        await login(authForm.email, authForm.password)
+        const cred = await signInWithEmailAndPassword(auth, authForm.email, authForm.password)
+        const userSnap = await getDoc(doc(db, 'users', cred.user.uid))
+        if (userSnap.exists() && (userSnap.data().role === 'admin' || userSnap.data().role === 'technician')) {
+          setShowAuth(false)
+          setAuthForm({ name: '', email: '', phone: '', password: '' })
+          navigate('/admin')
+        } else {
+          await login(authForm.email, authForm.password)
+          setShowAuth(false)
+          setAuthForm({ name: '', email: '', phone: '', password: '' })
+        }
       }
-      setShowAuth(false)
-      setAuthForm({ name: '', email: '', phone: '', password: '' })
-    } catch (e) { setAuthError(e.message) }
+    } catch (e) {
+      const msg = e.code === 'auth/invalid-credential' ? 'Invalid email or password'
+        : e.code === 'auth/too-many-requests' ? 'Too many attempts, try later'
+        : e.message || 'Login failed'
+      setAuthError(msg)
+    }
   }
 
   const handleOrder = (item, type) => {
@@ -77,7 +97,6 @@ export default function HomePage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link to="/admin" className="text-xs text-hrr-silver hover:text-white transition-colors hidden sm:block">Admin</Link>
             {buyer ? (
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-hrr-red flex items-center justify-center text-sm font-bold">{buyer.name?.charAt(0)}</div>
@@ -319,7 +338,7 @@ export default function HomePage() {
                 <a href="#services" className="text-hrr-silver hover:text-white flex items-center gap-2 transition-colors"><FiChevronRight size={14} /> Services</a>
                 <a href="#parts" className="text-hrr-silver hover:text-white flex items-center gap-2 transition-colors"><FiChevronRight size={14} /> Spare Parts</a>
                 <a href="#files" className="text-hrr-silver hover:text-white flex items-center gap-2 transition-colors"><FiChevronRight size={14} /> Digital Files</a>
-                <Link to="/admin" className="text-hrr-silver hover:text-white flex items-center gap-2 transition-colors"><FiChevronRight size={14} /> Workshop Login</Link>
+                <button onClick={() => setShowAuth(true)} className="text-hrr-silver hover:text-white flex items-center gap-2 transition-colors"><FiChevronRight size={14} /> Workshop Login</button>
               </div>
             </div>
             <div>
