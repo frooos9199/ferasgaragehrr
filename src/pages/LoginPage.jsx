@@ -16,8 +16,14 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success('✅')
-    } catch {
-      toast.error('❌ Invalid credentials')
+    } catch (err) {
+      console.error('Login error:', err.code, err.message)
+      const msg = err.code === 'auth/user-not-found' ? 'User not found'
+        : err.code === 'auth/wrong-password' ? 'Wrong password'
+        : err.code === 'auth/invalid-credential' ? 'Invalid email or password'
+        : err.code === 'auth/too-many-requests' ? 'Too many attempts, try later'
+        : err.message || 'Login failed'
+      toast.error(`❌ ${msg}`)
     }
     setLoading(false)
   }
