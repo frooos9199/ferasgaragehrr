@@ -59,8 +59,10 @@ export default function Invoices() {
     sendInvoiceWhatsApp(inv, customer, car)
   }
 
-  const generatePDF = (inv) => {
-    generateInvoicePDF(inv)
+  const generatePDF = async (inv) => {
+    toast.loading('📄 Generating PDF...')
+    await generateInvoicePDF(inv)
+    toast.dismiss()
     toast.success('📄 PDF Downloaded!')
   }
 
