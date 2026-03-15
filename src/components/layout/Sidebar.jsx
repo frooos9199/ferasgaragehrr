@@ -2,25 +2,36 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import {
-  FiHome, FiUsers, FiTruck, FiTool, FiPackage,
-  FiFileText, FiBarChart2, FiSettings, FiShoppingBag, FiLogOut, FiX
+  FiHome, FiUsers, FiTool, FiPackage,
+  FiFileText, FiBarChart2, FiSettings, FiShoppingBag, FiLogOut, FiX, FiUserCheck
 } from 'react-icons/fi'
 
 export default function Sidebar({ open, onClose }) {
   const { t } = useTranslation()
-  const { logout, isAdmin } = useAuth()
+  const { logout, userData } = useAuth()
 
-  const links = [
+  const isAdmin = userData?.role === 'admin'
+
+  const adminLinks = [
     { to: '/admin', icon: <FiHome />, label: t('dashboard') },
     { to: '/admin/customers', icon: <FiUsers />, label: t('customers') },
-    { to: '/admin/cars', icon: <FiTruck />, label: t('cars') },
     { to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
-    { to: '/admin/inventory', icon: <FiPackage />, label: t('inventory'), admin: true },
+    { to: '/admin/inventory', icon: <FiPackage />, label: t('inventory') },
     { to: '/admin/invoices', icon: <FiFileText />, label: t('invoices') },
-    { to: '/admin/reports', icon: <FiBarChart2 />, label: t('reports'), admin: true },
-    { to: '/admin/store-manage', icon: <FiShoppingBag />, label: t('store'), admin: true },
+    { to: '/admin/reports', icon: <FiBarChart2 />, label: t('reports') },
+    { to: '/admin/store-manage', icon: <FiShoppingBag />, label: t('store') },
+    { to: '/admin/employees', icon: <FiUserCheck />, label: t('employees') },
     { to: '/admin/settings', icon: <FiSettings />, label: t('settings') },
   ]
+
+  const techLinks = [
+    { to: '/admin', icon: <FiHome />, label: t('dashboard') },
+    { to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
+    { to: '/admin/customers', icon: <FiUsers />, label: t('customers') },
+    { to: '/admin/settings', icon: <FiSettings />, label: t('settings') },
+  ]
+
+  const links = isAdmin ? adminLinks : techLinks
 
   return (
     <aside className={`
@@ -42,21 +53,18 @@ export default function Sidebar({ open, onClose }) {
       </div>
 
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {links.map(link => {
-          if (link.admin && !isAdmin) return null
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.to === '/admin'}
-              onClick={onClose}
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-            >
-              <span className="text-lg">{link.icon}</span>
-              {link.label}
-            </NavLink>
-          )
-        })}
+        {links.map(link => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.to === '/admin'}
+            onClick={onClose}
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          >
+            <span className="text-lg">{link.icon}</span>
+            {link.label}
+          </NavLink>
+        ))}
       </nav>
 
       <div className="p-3 border-t border-hrr-silver/10">

@@ -13,6 +13,7 @@ import Invoices from './components/invoices/Invoices'
 import Reports from './components/reports/Reports'
 import Settings from './components/settings/Settings'
 import Store from './components/store/Store'
+import Employees from './components/employees/Employees'
 import ClientView from './components/client/ClientView'
 import { Toaster } from 'react-hot-toast'
 
@@ -33,6 +34,7 @@ function AdminRoutes() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/store-manage" element={<Store />} />
+        <Route path="/employees" element={<Employees />} />
       </Route>
     </Routes>
   )
