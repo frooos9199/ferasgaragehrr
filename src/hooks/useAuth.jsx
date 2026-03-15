@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import { auth, db } from '../config/firebase'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 const AuthContext = createContext()
 
@@ -18,7 +18,9 @@ export function AuthProvider({ children }) {
         if (snap.exists()) {
           setUserData({ id: firebaseUser.uid, email: firebaseUser.email, ...snap.data() })
         } else {
-          setUserData({ id: firebaseUser.uid, email: firebaseUser.email, name: firebaseUser.email, role: 'admin' })
+          const autoData = { name: 'Admin', email: firebaseUser.email, role: 'admin', createdAt: new Date().toISOString() }
+          await setDoc(doc(db, 'users', firebaseUser.uid), autoData)
+          setUserData({ id: firebaseUser.uid, ...autoData })
         }
       } else {
         setUser(null)

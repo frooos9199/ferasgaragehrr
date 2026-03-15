@@ -48,7 +48,7 @@ export default function HomePage() {
         if (!authForm.email || !authForm.password) return setAuthError('Fill all fields')
         const cred = await signInWithEmailAndPassword(auth, authForm.email, authForm.password)
         const userSnap = await getDoc(doc(db, 'users', cred.user.uid))
-        if (userSnap.exists() && (userSnap.data().role === 'admin' || userSnap.data().role === 'technician')) {
+        if (userSnap.exists()) {
           setShowAuth(false)
           setAuthForm({ name: '', email: '', phone: '', password: '' })
           navigate('/admin')
@@ -59,8 +59,17 @@ export default function HomePage() {
           setShowAuth(false)
           setAuthForm({ name: '', email: '', phone: '', password: '' })
         } else {
-          setAuthError('Account not found. Please register first.')
-          await auth.signOut()
+          // First admin login - auto create profile
+          const { setDoc: sd } = await import('firebase/firestore')
+          await sd(doc(db, 'users', cred.user.uid), {
+            name: cred.user.email.split('@')[0],
+            email: cred.user.email,
+            role: 'admin',
+            createdAt: new Date().toISOString()
+          })
+          setShowAuth(false)
+          setAuthForm({ name: '', email: '', phone: '', password: '' })
+          navigate('/admin')
         }
       }
     } catch (e) {
