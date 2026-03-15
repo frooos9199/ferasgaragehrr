@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #111111;
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #DC2626;
+  border-radius: 3px;
+}
+
+/* RTL Support */
+[dir="rtl"] .sidebar-link.active {
+  border-right: 4px solid #DC2626;
+  border-left: none;
+}
+[dir="ltr"] .sidebar-link.active {
+  border-left: 4px solid #DC2626;
+  border-right: none;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-hrr-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 active:scale-95 shadow-lg shadow-red-500/20;
+  }
+  .btn-secondary {
+    @apply bg-hrr-steel hover:bg-hrr-silver/20 text-white font-bold py-2 px-6 rounded-lg border border-hrr-silver/30 transition-all duration-200 active:scale-95;
+  }
+  .input-field {
+    @apply w-full bg-hrr-steel border border-hrr-silver/30 rounded-lg px-4 py-3 text-white placeholder-hrr-silver/50 focus:outline-none focus:border-hrr-red focus:ring-1 focus:ring-hrr-red/50 transition-all;
+  }
+  .card {
+    @apply bg-hrr-gray border border-hrr-silver/10 rounded-xl p-6 transition-all duration-200;
+  }
+  .card:hover {
+    border-color: rgba(160, 160, 160, 0.2);
+  }
+  .stat-card {
+    @apply bg-hrr-gray border border-hrr-silver/10 rounded-xl p-5 flex flex-col gap-2 hover:border-hrr-red/30 transition-all duration-200;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-hrr-silver hover:text-white hover:bg-hrr-steel transition-all duration-200 text-sm;
+  }
+  .sidebar-link.active {
+    @apply text-white bg-hrr-red/20;
+  }
+  .table-row {
+    @apply border-b border-hrr-silver/10 hover:bg-hrr-steel/50 transition-colors;
+  }
+  .badge {
+    @apply px-3 py-1 rounded-full text-xs font-bold inline-block;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card, .stat-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Select styling */
+select.input-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23A0A0A0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 12px center;
+  padding-left: 32px;
+}
+
+[dir="ltr"] select.input-field {
+  background-position: right 12px center;
+  padding-left: 16px;
+  padding-right: 32px;
+}
