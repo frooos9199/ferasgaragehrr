@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bidi-js": "^1.0.3",
     "date-fns": "^4.1.0",
     "firebase": "^11.1.0",
     "i18next": "^24.2.0",

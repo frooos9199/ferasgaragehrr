@@ -1,24 +1,28 @@
 import jsPDF from 'jspdf'
 import { AMIRI_FONT } from '../assets/amiriFont'
 import { formatCurrency, formatDate } from './helpers'
+import bidiFactory from 'bidi-js'
 
-// عكس النص العربي للـ PDF
+const bidi = bidiFactory()
+
 const isArabic = (text) => /[\u0600-\u06FF]/.test(text)
 
-const reverseArabic = (text) => {
+const processArabic = (text) => {
   if (!text) return ''
-  // Split mixed text and reverse Arabic parts
-  return text.split(/(\s+)/).map(word => {
-    if (isArabic(word)) return word.split('').reverse().join('')
-    return word
-  }).join('')
+  const str = String(text)
+  if (!isArabic(str)) return str
+  const { flattened } = bidi.getReorderSegments(str, 'rtl')
+  let result = ''
+  for (const [start, end] of flattened) {
+    result += str.slice(start, end)
+  }
+  return result
 }
 
 export const generateInvoicePDF = (inv) => {
   const doc = new jsPDF()
   const w = doc.internal.pageSize.getWidth()
 
-  // Add Arabic font
   doc.addFileToVFS('Amiri-Regular.ttf', AMIRI_FONT)
   doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal')
 
@@ -28,12 +32,10 @@ export const generateInvoicePDF = (inv) => {
     doc.setTextColor(...color)
   }
 
-  // Smart text - handles Arabic RTL
   const drawText = (text, x, y, options = {}) => {
     const str = String(text || '')
     if (isArabic(str)) {
-      const reversed = reverseArabic(str)
-      doc.text(reversed, x, y, { ...options })
+      doc.text(processArabic(str), x, y, { ...options, align: options.align || 'right' })
     } else {
       doc.text(str, x, y, options)
     }
@@ -71,7 +73,7 @@ export const generateInvoicePDF = (inv) => {
   y += 6
   setFont(10, [0, 0, 0])
   doc.text(formatDate(inv.createdAt), 20, y)
-  drawText(inv.customerName || '-', 80, y)
+  drawText(inv.customerName || '-', 130, y, { align: 'right' })
   doc.text(inv.customerPhone || '-', 145, y)
 
   y += 12
@@ -81,7 +83,7 @@ export const generateInvoicePDF = (inv) => {
   doc.text('Work Order', 145, y)
   y += 6
   setFont(10, [0, 0, 0])
-  doc.text(`Ford ${inv.carModel} ${inv.carYear}`, 20, y)
+  doc.text(`Ford ${inv.carModel || ''} ${inv.carYear || ''}`, 20, y)
   doc.text(inv.carPlate || '-', 80, y)
   doc.text(inv.orderNumber || '-', 145, y)
 
@@ -107,7 +109,7 @@ export const generateInvoicePDF = (inv) => {
     setFont(9, [120, 120, 120])
     doc.text(String(itemNum), 25, y)
     setFont(10, [30, 30, 30])
-    drawText(item.name, 35, y)
+    drawText(item.name, isArabic(item.name) ? 130 : 35, y, isArabic(item.name) ? { align: 'right' } : {})
     doc.text(formatCurrency(item.price), w - 25, y, { align: 'right' })
     doc.setDrawColor(230, 230, 230)
     doc.setLineWidth(0.2)
