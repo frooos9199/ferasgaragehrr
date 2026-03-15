@@ -1,22 +1,23 @@
 import jsPDF from 'jspdf'
 import { AMIRI_FONT } from '../assets/amiriFont'
 import { formatCurrency, formatDate } from './helpers'
-import bidiFactory from 'bidi-js'
-
-const bidi = bidiFactory()
+import { convertArabic } from 'arabic-reshaper'
 
 const isArabic = (text) => /[\u0600-\u06FF]/.test(text)
 
-const processArabic = (text) => {
+const fixArabic = (text) => {
   if (!text) return ''
   const str = String(text)
   if (!isArabic(str)) return str
-  const { flattened } = bidi.getReorderSegments(str, 'rtl')
-  let result = ''
-  for (const [start, end] of flattened) {
-    result += str.slice(start, end)
-  }
-  return result
+  // Shape Arabic letters (connect them) then reverse for LTR PDF rendering
+  const words = str.split(' ')
+  const processed = words.map(word => {
+    if (isArabic(word)) {
+      return convertArabic(word).split('').reverse().join('')
+    }
+    return word
+  })
+  return processed.reverse().join(' ')
 }
 
 export const generateInvoicePDF = (inv) => {
@@ -30,15 +31,6 @@ export const generateInvoicePDF = (inv) => {
     doc.setFont('Amiri', 'normal')
     doc.setFontSize(size)
     doc.setTextColor(...color)
-  }
-
-  const drawText = (text, x, y, options = {}) => {
-    const str = String(text || '')
-    if (isArabic(str)) {
-      doc.text(processArabic(str), x, y, { ...options, align: options.align || 'right' })
-    } else {
-      doc.text(str, x, y, options)
-    }
   }
 
   // === RED TOP BAR ===
@@ -73,7 +65,7 @@ export const generateInvoicePDF = (inv) => {
   y += 6
   setFont(10, [0, 0, 0])
   doc.text(formatDate(inv.createdAt), 20, y)
-  drawText(inv.customerName || '-', 130, y, { align: 'right' })
+  doc.text(fixArabic(inv.customerName || '-'), 80, y)
   doc.text(inv.customerPhone || '-', 145, y)
 
   y += 12
@@ -109,7 +101,7 @@ export const generateInvoicePDF = (inv) => {
     setFont(9, [120, 120, 120])
     doc.text(String(itemNum), 25, y)
     setFont(10, [30, 30, 30])
-    drawText(item.name, isArabic(item.name) ? 130 : 35, y, isArabic(item.name) ? { align: 'right' } : {})
+    doc.text(fixArabic(item.name), 35, y)
     doc.text(formatCurrency(item.price), w - 25, y, { align: 'right' })
     doc.setDrawColor(230, 230, 230)
     doc.setLineWidth(0.2)
