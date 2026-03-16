@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { formatCurrency, formatDate, sendInvoiceWhatsApp, generateOrderNumber } from '../../utils/helpers'
-import { FiPlus, FiSend, FiSearch, FiPrinter, FiEdit2, FiTrash2, FiX } from 'react-icons/fi'
+import { FiPlus, FiSend, FiSearch, FiPrinter, FiEdit2, FiTrash2, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { generateInvoicePDF } from '../../utils/pdfGenerator'
 import toast from 'react-hot-toast'
+
+const PAGE_SIZE = 15
 
 export default function Invoices() {
   const { t } = useTranslation()
@@ -15,10 +17,14 @@ export default function Invoices() {
   const [editingId, setEditingId] = useState(null)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [form, setForm] = useState({ orderId: '', laborCost: 0, items: [{ name: '', price: 0 }] })
+  const [page, setPage] = useState(0)
 
   const filtered = invoices
     .filter(i => !search || i.customerName?.toLowerCase().includes(search.toLowerCase()) || i.number?.includes(search) || i.carModel?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   const handleAddItem = () => setForm({ ...form, items: [...form.items, { name: '', price: 0 }] })
   const handleItemChange = (idx, field, value) => {
@@ -118,7 +124,7 @@ export default function Invoices() {
 
       <div className="relative mb-4">
         <FiSearch className="absolute top-3.5 start-4 text-hrr-silver" />
-        <input type="text" placeholder={`${t('search')}...`} value={search} onChange={e => setSearch(e.target.value)} className="input-field ps-10" />
+        <input type="text" placeholder={`${t('search')}...`} value={search} onChange={e => { setSearch(e.target.value); setPage(0) }} className="input-field ps-10" />
       </div>
 
       {showForm && (
@@ -165,7 +171,7 @@ export default function Invoices() {
       )}
 
       <div className="space-y-3">
-        {filtered.map(inv => (
+        {paged.map(inv => (
           <div key={inv.id} className="card">
             <div className="flex items-center justify-between">
               <div className="flex-1 cursor-pointer" onClick={() => setSelectedInvoice(selectedInvoice?.id === inv.id ? null : inv)}>
@@ -212,6 +218,13 @@ export default function Invoices() {
           </div>
         ))}
         {filtered.length === 0 && <p className="text-center text-hrr-silver py-12">{t('no_results')}</p>}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 mt-4">
+            <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0} className="btn-secondary py-1.5 px-3 disabled:opacity-30"><FiChevronLeft /></button>
+            <span className="text-sm text-hrr-silver">{page + 1} / {totalPages}</span>
+            <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1} className="btn-secondary py-1.5 px-3 disabled:opacity-30"><FiChevronRight /></button>
+          </div>
+        )}
       </div>
     </div>
   )

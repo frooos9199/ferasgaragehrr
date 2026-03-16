@@ -2,13 +2,16 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { useAuth } from '../../hooks/useAuth'
-import { WORK_ORDER_STATUS, STATUS_COLORS, WORK_ORDER_TEMPLATES, DTC_DATABASE } from '../../config/constants'
+import { WORK_ORDER_STATUS, STATUS_COLORS, WORK_ORDER_TEMPLATES } from '../../config/constants'
+import { DTC_DATABASE } from '../../data/dtcDatabase'
 import { generateOrderNumber, formatDate, formatCurrency, sendWhatsApp } from '../../utils/helpers'
 import { WHATSAPP_NUMBER } from '../../config/constants'
-import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2, FiX, FiCpu, FiAlertTriangle } from 'react-icons/fi'
+import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2, FiX, FiCpu, FiAlertTriangle, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { storage } from '../../config/firebase'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import toast from 'react-hot-toast'
+
+const PAGE_SIZE = 15
 
 export default function WorkOrders() {
   const { t } = useTranslation()
@@ -16,7 +19,7 @@ export default function WorkOrders() {
   const { data: orders, add, update, remove: removeOrder } = useCollection('workOrders')
   const { data: cars } = useCollection('cars')
   const { data: customers } = useCollection('customers')
-  const { data: inventoryItems } = useCollection('inventory')
+  const { data: inventoryItems, update: updateInventory } = useCollection('inventory')
   const { add: addInvoice } = useCollection('invoices')
   const [showForm, setShowForm] = useState(false)
   const [filterStatus, setFilterStatus] = useState('all')
@@ -27,10 +30,14 @@ export default function WorkOrders() {
   })
 
   const [dtcSearch, setDtcSearch] = useState('')
+  const [page, setPage] = useState(0)
 
   const filtered = orders
     .filter(o => filterStatus === 'all' || o.status === filterStatus)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   const applyTemplate = (templateId) => {
     const tmpl = WORK_ORDER_TEMPLATES.find(t => t.id === templateId)
@@ -100,13 +107,18 @@ export default function WorkOrders() {
   }
 
   const addPart = async (order) => {
-    const parts = [...(order.parts || []), { name: '', quantity: 1, price: 0 }]
+    const parts = [...(order.parts || []), { name: '', quantity: 1, price: 0, inventoryId: '' }]
     await update(order.id, { parts })
   }
 
   const updatePart = async (order, idx, field, value) => {
     const parts = [...(order.parts || [])]
-    parts[idx] = { ...parts[idx], [field]: field === 'name' ? value : Number(value) }
+    if (field === 'inventoryId' && value) {
+      const inv = inventoryItems.find(i => i.id === value)
+      if (inv) parts[idx] = { ...parts[idx], inventoryId: value, name: inv.partName, price: inv.sellPrice || inv.buyPrice || 0 }
+    } else {
+      parts[idx] = { ...parts[idx], [field]: field === 'name' ? value : Number(value) }
+    }
     const partsCost = parts.reduce((s, p) => s + (p.price * p.quantity), 0)
     const totalCost = partsCost + (order.laborCost || 0)
     await update(order.id, { parts, totalCost })
@@ -117,6 +129,20 @@ export default function WorkOrders() {
     const partsCost = parts.reduce((s, p) => s + (p.price * p.quantity), 0)
     const totalCost = partsCost + (order.laborCost || 0)
     await update(order.id, { parts, totalCost })
+  }
+
+  const deductInventory = async (order) => {
+    for (const part of (order.parts || [])) {
+      if (part.inventoryId) {
+        const inv = inventoryItems.find(i => i.id === part.inventoryId)
+        if (inv) {
+          const newQty = Math.max(0, (inv.quantity || 0) - (part.quantity || 1))
+          await updateInventory(part.inventoryId, { quantity: newQty })
+        }
+      }
+    }
+    await update(order.id, { inventoryDeducted: true })
+    toast.success('📦 Inventory updated')
   }
 
   const updateLaborCost = async (order, cost) => {
@@ -249,13 +275,13 @@ export default function WorkOrders() {
 
       {/* فلتر الحالة */}
       <div className="flex gap-1.5 md:gap-2 mb-4 flex-wrap overflow-x-auto pb-2">
-        <button onClick={() => setFilterStatus('all')} className={`badge ${filterStatus === 'all' ? 'bg-hrr-red' : 'bg-hrr-steel'} text-white cursor-pointer px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm whitespace-nowrap`}>
+        <button onClick={() => { setFilterStatus('all'); setPage(0) }} className={`badge ${filterStatus === 'all' ? 'bg-hrr-red' : 'bg-hrr-steel'} text-white cursor-pointer px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm whitespace-nowrap`}>
           {t('all')} ({orders.length})
         </button>
         {WORK_ORDER_STATUS.map(s => {
           const count = orders.filter(o => o.status === s).length
           return (
-            <button key={s} onClick={() => setFilterStatus(s)} className={`badge ${filterStatus === s ? STATUS_COLORS[s] : 'bg-hrr-steel'} text-white cursor-pointer px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm whitespace-nowrap`}>
+            <button key={s} onClick={() => { setFilterStatus(s); setPage(0) }} className={`badge ${filterStatus === s ? STATUS_COLORS[s] : 'bg-hrr-steel'} text-white cursor-pointer px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm whitespace-nowrap`}>
               {t(s)} ({count})
             </button>
           )
@@ -298,7 +324,7 @@ export default function WorkOrders() {
 
       {/* قائمة أوامر الشغل */}
       <div className="space-y-3">
-        {filtered.map(order => (
+        {paged.map(order => (
           <div key={order.id} className={`card transition-all ${expandedId === order.id ? 'border-hrr-red/50' : ''}`}>
             {/* الهيدر */}
             <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}>
@@ -443,6 +469,10 @@ export default function WorkOrders() {
                   </div>
                   {(order.parts || []).map((part, idx) => (
                     <div key={idx} className="flex gap-1.5 md:gap-2 mb-2 items-center flex-wrap sm:flex-nowrap">
+                      <select value={part.inventoryId || ''} onChange={e => updatePart(order, idx, 'inventoryId', e.target.value)} className="input-field w-28 md:w-36 py-2 text-xs">
+                        <option value="">Stock...</option>
+                        {inventoryItems.map(i => <option key={i.id} value={i.id}>{i.partName} ({i.quantity})</option>)}
+                      </select>
                       <input placeholder={t('part_name')} value={part.name} onChange={e => updatePart(order, idx, 'name', e.target.value)} className="input-field flex-1 py-2 text-sm min-w-[120px]" />
                       <input type="number" placeholder={t('quantity')} value={part.quantity} onChange={e => updatePart(order, idx, 'quantity', e.target.value)} className="input-field w-16 md:w-20 py-2 text-sm text-center" />
                       <input type="number" step="0.001" placeholder="KWD" value={part.price} onChange={e => updatePart(order, idx, 'price', e.target.value)} className="input-field w-24 md:w-28 py-2 text-sm" />
@@ -471,6 +501,12 @@ export default function WorkOrders() {
                   <button onClick={() => sendClientLink(order)} className="btn-secondary flex items-center gap-1 text-sm py-2 px-3 md:px-6">
                     <FiSend /> {t('send_whatsapp')}
                   </button>
+                  {!order.inventoryDeducted && (order.parts || []).some(p => p.inventoryId) && (
+                    <button onClick={() => deductInventory(order)} className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1 text-sm py-2 px-3 md:px-6 rounded-lg">
+                      📦 Deduct Stock
+                    </button>
+                  )}
+                  {order.inventoryDeducted && <span className="text-green-400 text-xs">✅ Stock deducted</span>}
                   {isAdmin && (
                     <button onClick={() => deleteOrder(order)} className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1 text-sm py-2 px-3 md:px-6 rounded-lg">
                       <FiTrash2 /> {t('delete')}
@@ -482,6 +518,13 @@ export default function WorkOrders() {
           </div>
         ))}
         {filtered.length === 0 && <p className="text-center text-hrr-silver py-12">{t('no_results')}</p>}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 mt-4">
+            <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0} className="btn-secondary py-1.5 px-3 disabled:opacity-30"><FiChevronLeft /></button>
+            <span className="text-sm text-hrr-silver">{page + 1} / {totalPages} ({filtered.length})</span>
+            <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1} className="btn-secondary py-1.5 px-3 disabled:opacity-30"><FiChevronRight /></button>
+          </div>
+        )}
       </div>
     </div>
   )

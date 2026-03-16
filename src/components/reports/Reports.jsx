@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { formatCurrency, formatDate } from '../../utils/helpers'
-import { FiTrendingUp, FiDollarSign, FiTool, FiTruck, FiFileText } from 'react-icons/fi'
+import { FiDollarSign, FiTool, FiTruck, FiFileText, FiDownload, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import * as XLSX from 'xlsx'
+import toast from 'react-hot-toast'
+
+const PAGE_SIZE = 15
 
 export default function Reports() {
   const { t } = useTranslation()
@@ -11,10 +15,16 @@ export default function Reports() {
   const { data: customers } = useCollection('customers')
   const { data: inventory } = useCollection('inventory')
   const [period, setPeriod] = useState('month')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [page, setPage] = useState(0)
 
   const now = new Date()
   const filterByPeriod = (item) => {
     const d = new Date(item.createdAt)
+    if (period === 'custom' && dateFrom && dateTo) {
+      return d >= new Date(dateFrom) && d <= new Date(dateTo + 'T23:59:59')
+    }
     if (period === 'today') return d.toDateString() === now.toDateString()
     if (period === 'week') {
       const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7)
@@ -30,14 +40,12 @@ export default function Reports() {
   const totalParts = periodInvoices.reduce((s, i) => s + (i.items || []).reduce((ss, item) => ss + (item.price || 0), 0), 0)
   const totalLabor = periodInvoices.reduce((s, i) => s + (i.laborCost || 0), 0)
 
-  // أكثر خدمة مطلوبة
   const serviceCount = periodOrders.reduce((acc, o) => {
     acc[o.serviceType] = (acc[o.serviceType] || 0) + 1
     return acc
   }, {})
   const sortedServices = Object.entries(serviceCount).sort((a, b) => b[1] - a[1])
 
-  // أكثر موديل
   const modelCount = periodOrders.reduce((acc, o) => {
     const key = `Ford ${o.carModel}`
     acc[key] = (acc[key] || 0) + 1
@@ -45,24 +53,93 @@ export default function Reports() {
   }, {})
   const sortedModels = Object.entries(modelCount).sort((a, b) => b[1] - a[1])
 
-  // قيمة المخزون
   const inventoryValue = inventory.reduce((s, i) => s + (i.quantity * i.buyPrice), 0)
+
+  // Pagination
+  const totalPages = Math.ceil(periodInvoices.length / PAGE_SIZE)
+  const pagedInvoices = periodInvoices.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
+  // Excel Export
+  const exportInvoices = () => {
+    const data = periodInvoices.map(inv => ({
+      'Invoice #': inv.number,
+      'Customer': inv.customerName,
+      'Phone': inv.customerPhone,
+      'Car': `Ford ${inv.carModel} ${inv.carYear}`,
+      'Plate': inv.carPlate,
+      'Parts': (inv.items || []).map(i => i.name).join(', '),
+      'Parts Cost': (inv.items || []).reduce((s, i) => s + (i.price || 0), 0),
+      'Labor': inv.laborCost || 0,
+      'Total (KWD)': inv.total || 0,
+      'Date': formatDate(inv.createdAt),
+    }))
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoices')
+    XLSX.writeFile(wb, `HRR_Invoices_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    toast.success('📊 Excel exported!')
+  }
+
+  const exportOrders = () => {
+    const data = periodOrders.map(o => ({
+      'Order #': o.orderNumber,
+      'Customer': o.customerName,
+      'Phone': o.customerPhone,
+      'Car': `Ford ${o.carModel} ${o.carYear}`,
+      'Plate': o.carPlate,
+      'Service': o.serviceType,
+      'Status': o.status,
+      'Technician': o.technicianName,
+      'Total (KWD)': o.totalCost || 0,
+      'Date': formatDate(o.createdAt),
+    }))
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Work Orders')
+    XLSX.writeFile(wb, `HRR_Orders_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    toast.success('📊 Excel exported!')
+  }
+
+  const exportInventory = () => {
+    const data = inventory.map(i => ({
+      'Part Name': i.partName,
+      'Part Number': i.partNumber || '',
+      'Quantity': i.quantity,
+      'Min Qty': i.minQuantity,
+      'Buy Price': i.buyPrice,
+      'Sell Price': i.sellPrice || '',
+      'Total Value': i.quantity * i.buyPrice,
+    }))
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Inventory')
+    XLSX.writeFile(wb, `HRR_Inventory_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    toast.success('📊 Excel exported!')
+  }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="font-heading text-2xl font-bold">{t('reports')}</h2>
-        <div className="flex gap-2">
-          {['today', 'week', 'month', 'all'].map(p => (
-            <button key={p} onClick={() => setPeriod(p)}
-              className={`badge cursor-pointer px-4 py-2 ${period === p ? 'bg-hrr-red' : 'bg-hrr-steel'} text-white`}>
-              {p === 'week' ? 'Week' : t(p === 'all' ? 'all' : p === 'today' ? 'today' : 'this_month')}
+        <div className="flex gap-2 flex-wrap">
+          {['today', 'week', 'month', 'all', 'custom'].map(p => (
+            <button key={p} onClick={() => { setPeriod(p); setPage(0) }}
+              className={`badge cursor-pointer px-3 py-2 text-xs ${period === p ? 'bg-hrr-red' : 'bg-hrr-steel'} text-white`}>
+              {p === 'custom' ? '📅 Custom' : p === 'week' ? 'Week' : t(p === 'all' ? 'all' : p === 'today' ? 'today' : 'this_month')}
             </button>
           ))}
         </div>
       </div>
 
-      {/* الإحصائيات الرئيسية */}
+      {period === 'custom' && (
+        <div className="flex gap-3 mb-4 items-center flex-wrap">
+          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0) }} className="input-field w-40 py-2 text-sm" />
+          <span className="text-hrr-silver">→</span>
+          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0) }} className="input-field w-40 py-2 text-sm" />
+        </div>
+      )}
+
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="stat-card">
           <FiDollarSign className="text-2xl text-green-400" />
@@ -86,8 +163,21 @@ export default function Reports() {
         </div>
       </div>
 
+      {/* Export Buttons */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        <button onClick={exportInvoices} className="btn-secondary flex items-center gap-2 text-sm py-2 px-4">
+          <FiDownload /> Export Invoices
+        </button>
+        <button onClick={exportOrders} className="btn-secondary flex items-center gap-2 text-sm py-2 px-4">
+          <FiDownload /> Export Orders
+        </button>
+        <button onClick={exportInventory} className="btn-secondary flex items-center gap-2 text-sm py-2 px-4">
+          <FiDownload /> Export Inventory
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* أكثر خدمة */}
+        {/* Services */}
         <div className="card">
           <h3 className="font-heading text-lg font-bold mb-4">{t('service_type')}</h3>
           {sortedServices.length === 0 ? (
@@ -113,7 +203,7 @@ export default function Reports() {
           )}
         </div>
 
-        {/* أكثر موديل */}
+        {/* Models */}
         <div className="card">
           <h3 className="font-heading text-lg font-bold mb-4">🚗 {t('cars')}</h3>
           {sortedModels.length === 0 ? (
@@ -139,7 +229,7 @@ export default function Reports() {
           )}
         </div>
 
-        {/* ملخص المخزون */}
+        {/* Inventory */}
         <div className="card">
           <h3 className="font-heading text-lg font-bold mb-4">📦 {t('inventory')}</h3>
           <div className="grid grid-cols-2 gap-4">
@@ -154,7 +244,7 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* ملخص العملاء */}
+        {/* Customers */}
         <div className="card">
           <h3 className="font-heading text-lg font-bold mb-4">👥 {t('customers')}</h3>
           <div className="grid grid-cols-2 gap-4">
@@ -169,9 +259,11 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* آخر الفواتير */}
+        {/* Invoices Table with Pagination */}
         <div className="card col-span-1 md:col-span-2">
-          <h3 className="font-heading text-lg font-bold mb-4">🧾 {t('invoices')}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-heading text-lg font-bold">🧾 {t('invoices')} ({periodInvoices.length})</h3>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -184,7 +276,7 @@ export default function Reports() {
                 </tr>
               </thead>
               <tbody>
-                {periodInvoices.slice(0, 10).map(inv => (
+                {pagedInvoices.map(inv => (
                   <tr key={inv.id} className="table-row">
                     <td className="p-2 font-bold">{inv.number}</td>
                     <td className="p-2">{inv.customerName}</td>
@@ -196,6 +288,13 @@ export default function Reports() {
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-hrr-silver/10">
+              <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0} className="btn-secondary py-1.5 px-3 disabled:opacity-30"><FiChevronLeft /></button>
+              <span className="text-sm text-hrr-silver">{page + 1} / {totalPages}</span>
+              <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1} className="btn-secondary py-1.5 px-3 disabled:opacity-30"><FiChevronRight /></button>
+            </div>
+          )}
         </div>
       </div>
     </div>
