@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { FORD_MODELS, YEARS } from '../../config/constants'
+import { formatDate } from '../../utils/helpers'
 import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiTruck, FiChevronDown, FiChevronUp } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
@@ -20,9 +21,12 @@ export default function Customers() {
   const [showCarForm, setShowCarForm] = useState(false)
   const [editingCar, setEditingCar] = useState(null)
 
-  const filtered = customers.filter(c =>
-    c.name?.includes(search) || c.phone?.includes(search)
-  )
+  const filtered = customers.filter(c => {
+    if (!search) return true
+    const s = search.toLowerCase()
+    return c.name?.toLowerCase().includes(s) || c.phone?.includes(s) ||
+      getCustomerCars(c.id).some(car => car.model?.toLowerCase().includes(s) || car.plateNumber?.includes(s))
+  })
 
   const getCustomerCars = (customerId) => cars.filter(c => c.customerId === customerId)
 
@@ -232,21 +236,43 @@ export default function Customers() {
 
                   {/* قائمة السيارات */}
                   <div className="space-y-2">
-                    {customerCars.map(car => (
-                      <div key={car.id} className="flex items-center justify-between p-3 bg-hrr-dark rounded-lg">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-bold text-sm">🚗 Ford {car.model} <span className="text-hrr-silver">{car.year}</span></p>
-                          <div className="flex gap-3 text-xs text-hrr-silver mt-1 flex-wrap">
-                            <span>🔢 {car.plateNumber}</span>
-                            {car.vin && <span dir="ltr">VIN: {car.vin}</span>}
+                    {customerCars.map(car => {
+                      const carOrders = orders.filter(o => o.carId === car.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                      return (
+                        <div key={car.id} className="bg-hrr-dark rounded-lg overflow-hidden">
+                          <div className="flex items-center justify-between p-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-sm">🚗 Ford {car.model} <span className="text-hrr-silver">{car.year}</span></p>
+                              <div className="flex gap-3 text-xs text-hrr-silver mt-1 flex-wrap">
+                                <span>🔢 {car.plateNumber}</span>
+                                {car.vin && <span dir="ltr">VIN: {car.vin}</span>}
+                                <span>🔧 {carOrders.length} orders</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-1 ms-2 shrink-0">
+                              <button onClick={() => handleEditCar(car)} className="text-blue-400 hover:text-blue-300 p-1"><FiEdit2 size={14} /></button>
+                              <button onClick={() => handleDeleteCar(car.id)} className="text-red-400 hover:text-red-300 p-1"><FiTrash2 size={14} /></button>
+                            </div>
                           </div>
+                          {carOrders.length > 0 && (
+                            <div className="border-t border-hrr-silver/10 px-3 py-2 space-y-1">
+                              <p className="text-xs text-hrr-silver font-bold mb-1">Service History</p>
+                              {carOrders.slice(0, 5).map(o => (
+                                <div key={o.id} className="flex items-center justify-between text-xs">
+                                  <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${o.status === 'delivered' ? 'bg-green-400' : o.status === 'done' ? 'bg-blue-400' : 'bg-orange-400'}`} />
+                                    <span className="text-hrr-silver">{o.orderNumber}</span>
+                                    <span>{t(o.serviceType)}</span>
+                                  </div>
+                                  <span className="text-hrr-silver">{formatDate(o.createdAt)}</span>
+                                </div>
+                              ))}
+                              {carOrders.length > 5 && <p className="text-xs text-hrr-silver text-center">+{carOrders.length - 5} more</p>}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex gap-1 ms-2 shrink-0">
-                          <button onClick={() => handleEditCar(car)} className="text-blue-400 hover:text-blue-300 p-1"><FiEdit2 size={14} /></button>
-                          <button onClick={() => handleDeleteCar(car.id)} className="text-red-400 hover:text-red-300 p-1"><FiTrash2 size={14} /></button>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                     {customerCars.length === 0 && (
                       <p className="text-center text-hrr-silver text-sm py-4">{t('no_results')} - {t('add')} {t('car')}</p>
                     )}
