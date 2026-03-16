@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { db } from '../../config/firebase'
+import { doc, onSnapshot } from 'firebase/firestore'
 import { formatCurrency, formatDate } from '../../utils/helpers'
 import { STATUS_COLORS } from '../../config/constants'
 
@@ -9,23 +11,26 @@ const STATUS_EN = { received: 'Received', diagnosis: 'Diagnosis', in_progress: '
 export default function ClientView() {
   const { orderId } = useParams()
   const [order, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem('hrr_workOrders')
-    if (saved) {
-      const orders = JSON.parse(saved)
-      const found = orders.find(o => o.id === orderId)
-      if (found) setOrder(found)
-    }
+    const unsub = onSnapshot(doc(db, 'workOrders', orderId), (snap) => {
+      if (snap.exists()) {
+        setOrder({ id: snap.id, ...snap.data() })
+      }
+      setLoading(false)
+    }, () => setLoading(false))
+    return unsub
   }, [orderId])
 
-  if (!order) return <div className="min-h-screen bg-hrr-dark flex items-center justify-center text-white">Order not found</div>
+  if (loading) return <div className="min-h-screen bg-hrr-dark flex items-center justify-center text-white text-xl">🏁 Loading...</div>
+  if (!order) return <div className="min-h-screen bg-hrr-dark flex items-center justify-center text-white text-xl">Order not found</div>
 
   const currentStep = STATUS_STEPS.indexOf(order.status)
 
   return (
     <div className="min-h-screen bg-hrr-dark text-white p-4 max-w-2xl mx-auto">
-      <div className="text-center mb-8">
+      <div className="text-center mb-8 pt-4">
         <h1 className="font-heading text-3xl font-bold text-hrr-red">🏁 HRR</h1>
         <p className="text-hrr-silver">HOT ROD RACING</p>
       </div>
@@ -45,19 +50,26 @@ export default function ClientView() {
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${i <= currentStep ? STATUS_COLORS[s] + ' text-white' : 'bg-hrr-steel text-hrr-silver'}`}>
                 {i <= currentStep ? '✓' : i + 1}
               </div>
-              <span className={`text-xs mt-1 ${i <= currentStep ? 'text-white' : 'text-hrr-silver'}`}>{STATUS_EN[s]}</span>
+              <span className={`text-xs mt-1 text-center ${i <= currentStep ? 'text-white' : 'text-hrr-silver'}`}>{STATUS_EN[s]}</span>
             </div>
           ))}
         </div>
       </div>
 
+      {order.description && (
+        <div className="card mb-4">
+          <h3 className="font-bold mb-2">Service Details</h3>
+          <p className="text-hrr-silver">{order.description}</p>
+        </div>
+      )}
+
       {order.photos?.length > 0 && (
         <div className="card mb-4">
           <h3 className="font-bold mb-3">Photos</h3>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {order.photos.map((p, i) => (
               <div key={i} className="relative">
-                <img src={p.url} alt="" className="w-full h-28 object-cover rounded-lg" />
+                <img src={p.url} alt="" className="w-full h-28 object-cover rounded-lg cursor-pointer" onClick={() => window.open(p.url, '_blank')} />
                 <span className="absolute top-1 start-1 badge bg-black/70 text-white text-xs">{p.phase}</span>
               </div>
             ))}
@@ -66,13 +78,28 @@ export default function ClientView() {
       )}
 
       {order.totalCost > 0 && (
-        <div className="card">
-          <h3 className="font-bold mb-2">Invoice</h3>
-          <div className="text-2xl font-bold text-hrr-gold">{formatCurrency(order.totalCost)}</div>
+        <div className="card mb-4">
+          <h3 className="font-bold mb-3">Invoice</h3>
+          {(order.parts || []).map((p, i) => (
+            <div key={i} className="flex justify-between text-sm mb-1">
+              <span className="text-hrr-silver">{p.name}</span>
+              <span>{formatCurrency(p.price * p.quantity)}</span>
+            </div>
+          ))}
+          {order.laborCost > 0 && (
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-hrr-silver">Labor</span>
+              <span>{formatCurrency(order.laborCost)}</span>
+            </div>
+          )}
+          <div className="flex justify-between font-bold text-lg pt-2 mt-2 border-t border-hrr-silver/20">
+            <span>Total</span>
+            <span className="text-hrr-gold">{formatCurrency(order.totalCost)}</span>
+          </div>
         </div>
       )}
 
-      <p className="text-center text-hrr-silver text-sm mt-8">Thank you for choosing HRR! 🏁</p>
+      <p className="text-center text-hrr-silver text-sm mt-8 pb-4">Thank you for choosing HRR! 🏁</p>
     </div>
   )
 }
