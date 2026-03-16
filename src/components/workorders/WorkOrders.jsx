@@ -353,8 +353,7 @@ export default function WorkOrders() {
                 </div>
 
                 {/* أكواد الأعطال - DTC */}
-                {(order.serviceType === 'programming' || order.serviceType === 'repair') && (
-                  <div className="bg-hrr-dark rounded-lg p-4">
+                <div className="bg-hrr-dark rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <label className="text-sm font-bold flex items-center gap-2">
                         <FiCpu className="text-blue-400" /> Diagnostic Codes (DTC)
@@ -410,7 +409,6 @@ export default function WorkOrders() {
                       <p className="text-hrr-silver text-sm text-center py-4">No fault codes added yet</p>
                     )}
                   </div>
-                )}
 
                 {/* قطع الغيار */}
                 <div>
