@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { WORK_ORDER_STATUS, STATUS_COLORS, WORK_ORDER_TEMPLATES } from '../../config/constants'
 import { generateOrderNumber, formatDate, formatCurrency, sendWhatsApp } from '../../utils/helpers'
 import { WHATSAPP_NUMBER } from '../../config/constants'
-import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2, FiX } from 'react-icons/fi'
+import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2, FiX, FiCpu, FiAlertTriangle } from 'react-icons/fi'
 import { storage } from '../../config/firebase'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import toast from 'react-hot-toast'
@@ -25,6 +25,8 @@ export default function WorkOrders() {
     customerId: '', carId: '', serviceType: 'maintenance',
     description: '', template: '', technicianName: userData?.name || ''
   })
+
+  const [dtcInput, setDtcInput] = useState('')
 
   const filtered = orders
     .filter(o => filterStatus === 'all' || o.status === filterStatus)
@@ -181,6 +183,53 @@ export default function WorkOrders() {
     toast.success('🗑️ Order deleted')
   }
 
+  // DTC Functions
+  const addDTC = async (order) => {
+    if (!dtcInput.trim()) return
+    const dtcCodes = [...(order.dtcCodes || []), { code: dtcInput.toUpperCase().trim(), description: '', severity: 'medium', addedAt: new Date().toISOString() }]
+    await update(order.id, { dtcCodes })
+    setDtcInput('')
+    toast.success('🔧 Code added')
+  }
+
+  const updateDTC = async (order, idx, field, value) => {
+    const dtcCodes = [...(order.dtcCodes || [])]
+    dtcCodes[idx] = { ...dtcCodes[idx], [field]: value }
+    await update(order.id, { dtcCodes })
+  }
+
+  const removeDTC = async (order, idx) => {
+    const dtcCodes = (order.dtcCodes || []).filter((_, i) => i !== idx)
+    await update(order.id, { dtcCodes })
+    toast.success('🗑️')
+  }
+
+  const sendDiagnosticReport = (order) => {
+    const codes = order.dtcCodes || []
+    if (codes.length === 0) return toast.error('No diagnostic codes to send')
+    
+    let report = `🏁 *HOT ROD RACING - HRR*\n`
+    report += `📋 *DIAGNOSTIC REPORT*\n\n`
+    report += `🚗 Vehicle: Ford ${order.carModel} ${order.carYear}\n`
+    report += `🔢 Plate: ${order.carPlate}\n`
+    report += `📅 Date: ${formatDate(order.createdAt)}\n\n`
+    report += `⚠️ *FAULT CODES FOUND: ${codes.length}*\n`
+    report += `━━━━━━━━━━━━━━━━━━━━\n\n`
+    
+    codes.forEach((dtc, i) => {
+      const icon = dtc.severity === 'high' ? '🔴' : dtc.severity === 'medium' ? '🟡' : '🟢'
+      report += `${i + 1}. ${icon} *${dtc.code}*\n`
+      if (dtc.description) report += `   ${dtc.description}\n`
+      report += `\n`
+    })
+    
+    report += `━━━━━━━━━━━━━━━━━━━━\n`
+    report += `📞 Contact us for repairs:\n+96550540999\n\n`
+    report += `Thank you for choosing HRR! 🏁`
+    
+    sendWhatsApp(order.customerPhone, report)
+  }
+
   const customerCars = cars.filter(c => c.customerId === form.customerId)
 
   return (
@@ -302,6 +351,66 @@ export default function WorkOrders() {
                     </div>
                   )}
                 </div>
+
+                {/* أكواد الأعطال - DTC */}
+                {(order.serviceType === 'programming' || order.serviceType === 'repair') && (
+                  <div className="bg-hrr-dark rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-bold flex items-center gap-2">
+                        <FiCpu className="text-blue-400" /> Diagnostic Codes (DTC)
+                      </label>
+                      <button onClick={() => sendDiagnosticReport(order)} className="text-sm text-green-400 hover:underline flex items-center gap-1">
+                        <FiSend size={12} /> Send Report
+                      </button>
+                    </div>
+                    
+                    {/* إضافة كود جديد */}
+                    <div className="flex gap-2 mb-3">
+                      <input 
+                        placeholder="Enter code (e.g. P0300)" 
+                        value={dtcInput} 
+                        onChange={e => setDtcInput(e.target.value.toUpperCase())}
+                        onKeyDown={e => e.key === 'Enter' && addDTC(order)}
+                        className="input-field flex-1 py-2 text-sm font-mono" 
+                        dir="ltr"
+                      />
+                      <button onClick={() => addDTC(order)} className="btn-primary text-sm py-2 px-4">
+                        <FiPlus />
+                      </button>
+                    </div>
+                    
+                    {/* قائمة الأكواد */}
+                    {(order.dtcCodes || []).length > 0 ? (
+                      <div className="space-y-2">
+                        {(order.dtcCodes || []).map((dtc, idx) => (
+                          <div key={idx} className="bg-hrr-steel rounded-lg p-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-mono font-bold text-blue-400">{dtc.code}</span>
+                              <select 
+                                value={dtc.severity || 'medium'} 
+                                onChange={e => updateDTC(order, idx, 'severity', e.target.value)}
+                                className="text-xs bg-hrr-dark border border-hrr-silver/20 rounded px-2 py-1"
+                              >
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                              </select>
+                              <button onClick={() => removeDTC(order, idx)} className="text-red-400 hover:text-red-300 ms-auto"><FiTrash2 size={14} /></button>
+                            </div>
+                            <input 
+                              placeholder="Description (e.g. Random Misfire Detected)" 
+                              value={dtc.description || ''} 
+                              onChange={e => updateDTC(order, idx, 'description', e.target.value)}
+                              className="input-field py-1.5 text-sm w-full" 
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-hrr-silver text-sm text-center py-4">No fault codes added yet</p>
+                    )}
+                  </div>
+                )}
 
                 {/* قطع الغيار */}
                 <div>

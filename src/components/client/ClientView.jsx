@@ -63,6 +63,23 @@ export default function ClientView() {
         </div>
       )}
 
+      {order.dtcCodes?.length > 0 && (
+        <div className="card mb-4">
+          <h3 className="font-bold mb-3 flex items-center gap-2">⚠️ Diagnostic Codes</h3>
+          <div className="space-y-2">
+            {order.dtcCodes.map((dtc, i) => (
+              <div key={i} className="bg-hrr-steel rounded-lg p-3 flex items-start gap-3">
+                <span className="text-lg">{dtc.severity === 'high' ? '🔴' : dtc.severity === 'medium' ? '🟡' : '🟢'}</span>
+                <div>
+                  <span className="font-mono font-bold text-blue-400">{dtc.code}</span>
+                  {dtc.description && <p className="text-hrr-silver text-sm mt-1">{dtc.description}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {order.photos?.length > 0 && (
         <div className="card mb-4">
           <h3 className="font-bold mb-3">Photos</h3>
