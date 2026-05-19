@@ -14,6 +14,14 @@ export const sendWhatsApp = (phone, message) => {
   window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(message)}`, '_blank')
 }
 
+const formatWhatsAppNotes = (notes) => {
+  if (!notes?.trim()) return ''
+  return `📝 *Notes:*
+\u202B${notes.trim()}\u202C
+
+`
+}
+
 export const sendInvoiceWhatsApp = (invoice, customer, car) => {
   const msg = `🏁 *HOT ROD RACING - HRR*
 Managed by Firas Al-Otaibi
@@ -28,7 +36,7 @@ Managed by Firas Al-Otaibi
 🔧 Services:
 ${invoice.items.map(i => `✅ ${i.name}  ${formatCurrency(i.price)}`).join('\n')}
 
-${invoice.notes ? `📝 Notes: ${invoice.notes}\n\n` : ''}
+${formatWhatsAppNotes(invoice.notes)}
 
 💰 *Total: ${formatCurrency(invoice.total)}*
 

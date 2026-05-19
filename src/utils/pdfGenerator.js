@@ -9,16 +9,13 @@ const escapeHtml = (value) => String(value)
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&#39;')
 
-export const generateInvoicePDF = async (inv) => {
-  const container = document.createElement('div')
-  container.style.cssText = 'position:absolute;top:-9999px;left:0;width:794px;background:#fff;z-index:-1;'
-
+const buildInvoiceMarkup = (inv) => {
   const items = inv.items || []
   const notesSection = inv.notes
     ? `
       <div style="padding:0 40px 20px;">
         <div style="color:#999999;font-size:11px;margin-bottom:6px;">Notes</div>
-        <div style="background:#f5f5f5;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:#222222;white-space:pre-wrap;">${escapeHtml(inv.notes)}</div>
+        <div dir="auto" style="background:#f5f5f5;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.9;color:#222222;white-space:pre-wrap;unicode-bidi:plaintext;text-align:start;font-family:'Cairo',sans-serif;">${escapeHtml(inv.notes)}</div>
       </div>`
     : ''
   let rowsHTML = ''
@@ -39,7 +36,7 @@ export const generateInvoicePDF = async (inv) => {
       </tr>`
   }
 
-  container.innerHTML = `
+  return `
     <div style="width:794px;background:#fff;color:#000;">
       <div style="height:8px;background:#DC2626;"></div>
       
@@ -122,7 +119,12 @@ export const generateInvoicePDF = async (inv) => {
       <div style="height:8px;background:#DC2626;"></div>
     </div>
   `
+}
 
+const buildInvoicePDF = async (inv) => {
+  const container = document.createElement('div')
+  container.style.cssText = 'position:absolute;top:-9999px;left:0;width:794px;background:#fff;z-index:-1;'
+  container.innerHTML = buildInvoiceMarkup(inv)
   document.body.appendChild(container)
 
   try {
@@ -133,8 +135,18 @@ export const generateInvoicePDF = async (inv) => {
     const pdfW = pdf.internal.pageSize.getWidth()
     const pdfH = (canvas.height * pdfW) / canvas.width
     pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH)
-    pdf.save(`HRR-Invoice-${inv.number}.pdf`)
+    return pdf
   } finally {
     document.body.removeChild(container)
   }
+}
+
+export const generateInvoicePDFBlob = async (inv) => {
+  const pdf = await buildInvoicePDF(inv)
+  return pdf.output('blob')
+}
+
+export const generateInvoicePDF = async (inv) => {
+  const pdf = await buildInvoicePDF(inv)
+    pdf.save(`HRR-Invoice-${inv.number}.pdf`)
 }
