@@ -2,11 +2,25 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import { formatCurrency, formatDate } from './helpers'
 
+const escapeHtml = (value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;')
+
 export const generateInvoicePDF = async (inv) => {
   const container = document.createElement('div')
   container.style.cssText = 'position:absolute;top:-9999px;left:0;width:794px;background:#fff;z-index:-1;'
 
   const items = inv.items || []
+  const notesSection = inv.notes
+    ? `
+      <div style="padding:0 40px 20px;">
+        <div style="color:#999999;font-size:11px;margin-bottom:6px;">Notes</div>
+        <div style="background:#f5f5f5;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:#222222;white-space:pre-wrap;">${escapeHtml(inv.notes)}</div>
+      </div>`
+    : ''
   let rowsHTML = ''
   items.forEach((item, i) => {
     rowsHTML += `
@@ -79,6 +93,8 @@ export const generateInvoicePDF = async (inv) => {
           <tbody>${rowsHTML}</tbody>
         </table>
       </div>
+
+      ${notesSection}
 
       <table style="width:100%;border-collapse:collapse;">
         <tr>

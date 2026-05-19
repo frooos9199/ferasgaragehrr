@@ -28,6 +28,8 @@ Managed by Firas Al-Otaibi
 🔧 Services:
 ${invoice.items.map(i => `✅ ${i.name}  ${formatCurrency(i.price)}`).join('\n')}
 
+${invoice.notes ? `📝 Notes: ${invoice.notes}\n\n` : ''}
+
 💰 *Total: ${formatCurrency(invoice.total)}*
 
 📞 +${WHATSAPP_NUMBER}

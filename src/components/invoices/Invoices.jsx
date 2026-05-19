@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { formatCurrency, formatDate, sendInvoiceWhatsApp, generateOrderNumber } from '../../utils/helpers'
@@ -16,8 +16,15 @@ export default function Invoices() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
-  const [form, setForm] = useState({ orderId: '', laborCost: 0, items: [{ name: '', price: 0 }] })
+  const [form, setForm] = useState({ orderId: '', laborCost: 0, notes: '', items: [{ name: '', price: 0 }] })
   const [page, setPage] = useState(0)
+  const notesRef = useRef(null)
+
+  useEffect(() => {
+    if (!notesRef.current) return
+    notesRef.current.style.height = 'auto'
+    notesRef.current.style.height = `${notesRef.current.scrollHeight}px`
+  }, [form.notes, showForm])
 
   const filtered = invoices
     .filter(i => !search || i.customerName?.toLowerCase().includes(search.toLowerCase()) || i.number?.includes(search) || i.carModel?.toLowerCase().includes(search.toLowerCase()))
@@ -41,6 +48,7 @@ export default function Invoices() {
       await update(editingId, {
         items: form.items.filter(i => i.name),
         laborCost: Number(form.laborCost),
+        notes: form.notes?.trim() || '',
         total,
       })
       toast.success('✅ Invoice updated!')
@@ -60,6 +68,7 @@ export default function Invoices() {
         carPlate: order.carPlate,
         items: form.items.filter(i => i.name),
         laborCost: Number(form.laborCost),
+        notes: form.notes?.trim() || '',
         total,
       })
       toast.success('🧾 Invoice created!')
@@ -70,7 +79,7 @@ export default function Invoices() {
   const resetForm = () => {
     setShowForm(false)
     setEditingId(null)
-    setForm({ orderId: '', laborCost: 0, items: [{ name: '', price: 0 }] })
+    setForm({ orderId: '', laborCost: 0, notes: '', items: [{ name: '', price: 0 }] })
   }
 
   const startEdit = (inv) => {
@@ -78,6 +87,7 @@ export default function Invoices() {
     setForm({
       orderId: inv.orderId || '',
       laborCost: inv.laborCost || 0,
+      notes: inv.notes || '',
       items: inv.items?.length ? [...inv.items] : [{ name: '', price: 0 }]
     })
     setShowForm(true)
@@ -109,7 +119,7 @@ export default function Invoices() {
     if (order) {
       const items = (order.parts || []).map(p => ({ name: p.name, price: p.price * p.quantity }))
       if (!items.length) items.push({ name: '', price: 0 })
-      setForm({ orderId, laborCost: order.laborCost || 0, items })
+      setForm(current => ({ ...current, orderId, laborCost: order.laborCost || 0, items }))
     }
   }
 
@@ -154,6 +164,18 @@ export default function Invoices() {
           <div className="mb-3">
             <label className="text-sm text-hrr-silver mb-1 block">{t('labor_cost')} (KWD)</label>
             <input type="number" step="0.001" value={form.laborCost} onChange={e => setForm({ ...form, laborCost: e.target.value })} className="input-field w-40 py-2" />
+          </div>
+
+          <div className="mb-3">
+            <label className="text-sm text-hrr-silver mb-1 block">{t('notes')}</label>
+            <textarea
+              ref={notesRef}
+              value={form.notes}
+              onChange={e => setForm({ ...form, notes: e.target.value })}
+              rows={3}
+              className="input-field min-h-24 resize-none overflow-hidden"
+              placeholder={t('notes')}
+            />
           </div>
 
           <div className="bg-hrr-steel rounded-lg p-3 mb-3 flex justify-between items-center">
@@ -206,6 +228,12 @@ export default function Invoices() {
                     <div className="flex justify-between text-sm">
                       <span>Labor</span>
                       <span>{formatCurrency(inv.laborCost)}</span>
+                    </div>
+                  )}
+                  {inv.notes && (
+                    <div className="pt-2 border-t border-hrr-silver/20">
+                      <p className="text-xs text-hrr-silver mb-1">{t('notes')}</p>
+                      <p className="text-sm whitespace-pre-wrap">{inv.notes}</p>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-hrr-silver/20">
