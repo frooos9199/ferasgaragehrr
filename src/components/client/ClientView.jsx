@@ -63,6 +63,13 @@ export default function ClientView() {
         </div>
       )}
 
+      {order.notes && (
+        <div className="card mb-4">
+          <h3 className="font-bold mb-2">Notes</h3>
+          <p dir="auto" className="text-hrr-silver whitespace-pre-wrap leading-7">{order.notes}</p>
+        </div>
+      )}
+
       {order.dtcCodes?.length > 0 && (
         <div className="card mb-4">
           <h3 className="font-bold mb-3 flex items-center gap-2">⚠️ Diagnostic Codes</h3>
