@@ -14,7 +14,7 @@ export const sendWhatsApp = (phone, message) => {
   window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(message)}`, '_blank')
 }
 
-const formatWhatsAppNotes = (notes) => {
+export const formatWhatsAppNotes = (notes) => {
   if (!notes?.trim()) return ''
   return `📝 *Notes:*
 \u202B${notes.trim()}\u202C
@@ -44,6 +44,21 @@ ${formatWhatsAppNotes(invoice.notes)}
 Thank you for choosing HRR! 🏁`
 
   sendWhatsApp(customer.phone, msg)
+}
+
+export const sendWorkOrderWhatsApp = (order) => {
+  const link = `${window.location.origin}/client/${order.id}`
+  const msg = `🏁 *HOT ROD RACING - HRR*
+
+Hi ${order.customerName},
+Your vehicle Ford ${order.carModel} ${order.carYear} is being serviced.
+
+${formatWhatsAppNotes(order.notes)}Track status here:
+${link}
+
+📞 +${WHATSAPP_NUMBER}`
+
+  sendWhatsApp(order.customerPhone, msg)
 }
 
 export const generateOrderNumber = () => {

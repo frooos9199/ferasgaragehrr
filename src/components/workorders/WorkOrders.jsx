@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCollection } from '../../hooks/useCollection'
 import { useAuth } from '../../hooks/useAuth'
 import { WORK_ORDER_STATUS, STATUS_COLORS, WORK_ORDER_TEMPLATES } from '../../config/constants'
 import { DTC_DATABASE } from '../../data/dtcDatabase'
-import { generateOrderNumber, formatDate, formatCurrency, sendWhatsApp } from '../../utils/helpers'
-import { WHATSAPP_NUMBER } from '../../config/constants'
+import { generateOrderNumber, formatDate, formatCurrency, sendWhatsApp, sendWorkOrderWhatsApp } from '../../utils/helpers'
 import { FiPlus, FiCamera, FiSend, FiFileText, FiChevronDown, FiChevronUp, FiTrash2, FiX, FiCpu, FiAlertTriangle, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { storage } from '../../config/firebase'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
@@ -26,11 +25,19 @@ export default function WorkOrders() {
   const [expandedId, setExpandedId] = useState(null)
   const [form, setForm] = useState({
     customerId: '', carId: '', serviceType: 'maintenance',
-    description: '', template: '', technicianName: userData?.name || ''
+    description: '', notes: '', template: '', technicianName: userData?.name || ''
   })
 
   const [dtcSearch, setDtcSearch] = useState('')
   const [page, setPage] = useState(0)
+  const [noteDrafts, setNoteDrafts] = useState({})
+  const notesRef = useRef(null)
+
+  useEffect(() => {
+    if (!notesRef.current) return
+    notesRef.current.style.height = 'auto'
+    notesRef.current.style.height = `${notesRef.current.scrollHeight}px`
+  }, [form.notes, showForm])
 
   const filtered = orders
     .filter(o => filterStatus === 'all' || o.status === filterStatus)
@@ -72,7 +79,7 @@ export default function WorkOrders() {
       totalCost: 0,
     })
     setShowForm(false)
-    setForm({ customerId: '', carId: '', serviceType: 'maintenance', description: '', template: '', technicianName: userData?.name || '' })
+    setForm({ customerId: '', carId: '', serviceType: 'maintenance', description: '', notes: '', template: '', technicianName: userData?.name || '' })
     toast.success('✅ ' + t('new_work_order'))
   }
 
@@ -169,15 +176,17 @@ export default function WorkOrders() {
       carPlate: order.carPlate,
       items,
       laborCost: order.laborCost || 0,
+      notes: order.notes || '',
       total: order.totalCost || 0,
     })
     toast.success('🧾 Invoice created!')
   }
 
-  const sendClientLink = (order) => {
-    const link = `${window.location.origin}/client/${order.id}`
-    const msg = `🏁 *HOT ROD RACING - HRR*\n\nHi ${order.customerName},\nYour vehicle Ford ${order.carModel} ${order.carYear} is being serviced.\n\nTrack status here:\n${link}\n\n📞 +96550540999`
-    sendWhatsApp(order.customerPhone, msg)
+  const sendClientLink = (order) => sendWorkOrderWhatsApp(order)
+
+  const updateOrderNotes = async (order, notes) => {
+    if ((order.notes || '') === notes) return
+    await update(order.id, { notes })
   }
 
   const deletePhoto = async (order, photoIdx) => {
@@ -315,6 +324,14 @@ export default function WorkOrders() {
             <input placeholder={t('technician')} value={form.technicianName} onChange={e => setForm({ ...form, technicianName: e.target.value })} className="input-field" />
           </div>
           <textarea placeholder={t('description')} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="input-field mt-3" rows={2} />
+          <textarea
+            ref={notesRef}
+            placeholder={t('notes')}
+            value={form.notes}
+            onChange={e => setForm({ ...form, notes: e.target.value })}
+            className="input-field mt-3 min-h-24 resize-none overflow-hidden"
+            rows={3}
+          />
           <div className="flex gap-2 mt-3">
             <button onClick={handleCreate} className="btn-primary">{t('save')}</button>
             <button onClick={() => setShowForm(false)} className="btn-secondary">{t('cancel')}</button>
@@ -349,6 +366,26 @@ export default function WorkOrders() {
                 {/* الوصف */}
                 <p className="text-hrr-silver bg-hrr-steel p-3 rounded-lg">{order.description || '-'}</p>
                 <p className="text-sm">{t('technician')}: <span className="font-bold">{order.technicianName}</span></p>
+
+                <div>
+                  <label className="text-sm text-hrr-silver mb-2 block">{t('notes')}</label>
+                  <textarea
+                    value={noteDrafts[order.id] ?? order.notes ?? ''}
+                    onChange={e => setNoteDrafts(current => ({ ...current, [order.id]: e.target.value }))}
+                    onBlur={async e => {
+                      const value = e.target.value
+                      await updateOrderNotes(order, value)
+                      setNoteDrafts(current => {
+                        const next = { ...current }
+                        delete next[order.id]
+                        return next
+                      })
+                    }}
+                    className="input-field min-h-24"
+                    rows={3}
+                    placeholder={t('notes')}
+                  />
+                </div>
 
                 {/* تغيير الحالة */}
                 <div>
