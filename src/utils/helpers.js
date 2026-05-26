@@ -56,6 +56,9 @@ export const formatWhatsAppNotes = (notes) => {
 
 export const sendInvoiceWhatsApp = (invoice, customer, car) => {
   const items = Array.isArray(invoice?.items) ? invoice.items : []
+  const origin = window.location.origin
+  const workshopLink = invoice?.orderId ? `${origin}/client/${invoice.orderId}` : origin
+  const invoiceLink = invoice?.id ? `${origin}/invoice/${invoice.id}` : origin
   const msg = `🏁 *HOT ROD RACING - HRR*
 Managed by Firas Al-Otaibi
 
@@ -72,6 +75,9 @@ ${items.map(i => `✅ ${i?.name || '-'}  ${formatCurrency(i?.price)}`).join('\n'
 ${formatWhatsAppNotes(invoice.notes)}
 
 💰 *Total: ${formatCurrency(invoice?.total || 0)}*
+
+🔗 Workshop: ${workshopLink}
+🧾 Invoice: ${invoiceLink}
 
 📞 +${WHATSAPP_NUMBER}
 Thank you for choosing HRR! 🏁`

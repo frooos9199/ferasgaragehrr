@@ -15,6 +15,7 @@ import Settings from './components/settings/Settings'
 import Store from './components/store/Store'
 import Employees from './components/employees/Employees'
 import ClientView from './components/client/ClientView'
+import InvoiceView from './components/client/InvoiceView'
 import { Toaster } from 'react-hot-toast'
 
 function AdminRoutes() {
@@ -49,6 +50,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/client/:orderId" element={<ClientView />} />
+            <Route path="/invoice/:invoiceId" element={<InvoiceView />} />
             <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>
         </BrowserRouter>
