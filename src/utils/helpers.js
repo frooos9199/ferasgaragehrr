@@ -9,9 +9,41 @@ export const formatDate = (date) => {
   return d.toLocaleDateString('en-GB')
 }
 
+export const normalizeWhatsAppPhone = (phone, defaultCountryCode = '965') => {
+  if (phone === null || phone === undefined) return ''
+
+  let cleaned = String(phone).trim()
+  if (!cleaned) return ''
+
+  // Remove spaces/dashes/etc, keep digits.
+  cleaned = cleaned.replace(/[^0-9+]/g, '')
+  if (cleaned.startsWith('+')) cleaned = cleaned.slice(1)
+  cleaned = cleaned.replace(/\D/g, '')
+
+  // Convert 00CC... to CC...
+  if (cleaned.startsWith('00')) cleaned = cleaned.slice(2)
+
+  // If no country code, assume Kuwait (965) by default.
+  if (defaultCountryCode && !cleaned.startsWith(defaultCountryCode)) {
+    // Kuwait local numbers are typically 8 digits; sometimes stored as 0XXXXXXXX.
+    if (cleaned.length === 8) cleaned = `${defaultCountryCode}${cleaned}`
+    else if (cleaned.length === 9 && cleaned.startsWith('0')) cleaned = `${defaultCountryCode}${cleaned.slice(1)}`
+  }
+
+  return cleaned
+}
+
 export const sendWhatsApp = (phone, message) => {
-  const cleaned = phone.replace(/\D/g, '')
-  window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(message)}`, '_blank')
+  const cleaned = normalizeWhatsAppPhone(phone)
+  if (!cleaned || cleaned.length < 8) {
+    console.warn('WhatsApp send skipped: invalid phone', { phone, cleaned })
+    return false
+  }
+
+  const text = encodeURIComponent(message ?? '')
+  const url = `https://wa.me/${cleaned}?text=${text}`
+  window.open(url, '_blank', 'noopener,noreferrer')
+  return true
 }
 
 export const formatWhatsAppNotes = (notes) => {
@@ -23,27 +55,28 @@ export const formatWhatsAppNotes = (notes) => {
 }
 
 export const sendInvoiceWhatsApp = (invoice, customer, car) => {
+  const items = Array.isArray(invoice?.items) ? invoice.items : []
   const msg = `🏁 *HOT ROD RACING - HRR*
 Managed by Firas Al-Otaibi
 
-📄 Invoice #: ${invoice.number}
-📅 Date: ${formatDate(invoice.createdAt)}
+📄 Invoice #: ${invoice?.number || '-'}
+📅 Date: ${formatDate(invoice?.createdAt)}
 
-👤 Customer: ${customer.name}
-🚗 Vehicle: Ford ${car.model} ${car.year}
-🔢 Plate: ${car.plateNumber}
+👤 Customer: ${customer?.name || '-'}
+🚗 Vehicle: Ford ${car?.model || '-'} ${car?.year || ''}
+🔢 Plate: ${car?.plateNumber || '-'}
 
 🔧 Services:
-${invoice.items.map(i => `✅ ${i.name}  ${formatCurrency(i.price)}`).join('\n')}
+${items.map(i => `✅ ${i?.name || '-'}  ${formatCurrency(i?.price)}`).join('\n')}
 
 ${formatWhatsAppNotes(invoice.notes)}
 
-💰 *Total: ${formatCurrency(invoice.total)}*
+💰 *Total: ${formatCurrency(invoice?.total || 0)}*
 
 📞 +${WHATSAPP_NUMBER}
 Thank you for choosing HRR! 🏁`
 
-  sendWhatsApp(customer.phone, msg)
+  return sendWhatsApp(customer?.phone, msg)
 }
 
 export const sendWorkOrderWhatsApp = (order) => {
@@ -58,7 +91,7 @@ ${link}
 
 📞 +${WHATSAPP_NUMBER}`
 
-  sendWhatsApp(order.customerPhone, msg)
+  return sendWhatsApp(order?.customerPhone, msg)
 }
 
 export const generateOrderNumber = () => {

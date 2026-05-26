@@ -104,7 +104,8 @@ export default function Invoices() {
   const handleSendWhatsApp = (inv) => {
     const customer = { name: inv.customerName, phone: inv.customerPhone }
     const car = { model: inv.carModel, year: inv.carYear, plateNumber: inv.carPlate }
-    sendInvoiceWhatsApp(inv, customer, car)
+    const ok = sendInvoiceWhatsApp(inv, customer, car)
+    if (!ok) toast.error('Invalid customer phone number for WhatsApp')
   }
 
   const generatePDF = async (inv) => {
