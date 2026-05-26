@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import { formatCurrency, formatDate } from './helpers'
+import { INVOICE_WARRANTY_NOTE_EN } from '../config/constants'
 
 const escapeHtml = (value) => String(value)
   .replaceAll('&', '&amp;')
@@ -11,6 +12,7 @@ const escapeHtml = (value) => String(value)
 
 const buildInvoiceMarkup = (inv) => {
   const items = inv.items || []
+  const warrantyHtml = escapeHtml(INVOICE_WARRANTY_NOTE_EN).replaceAll('\n', '<br/>')
   const notesSection = inv.notes
     ? `
       <div style="padding:0 40px 20px;">
@@ -65,6 +67,16 @@ const buildInvoiceMarkup = (inv) => {
           <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;" dir="ltr">${inv.customerPhone || '-'}</td>
         </tr>
         <tr>
+          <td style="padding:0 40px 4px;color:#999999;font-size:11px;">Vehicle Received</td>
+          <td style="padding:0 40px 4px;color:#999999;font-size:11px;"></td>
+          <td style="padding:0 40px 4px;color:#999999;font-size:11px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;">${formatDate(inv.receivedAt || inv.createdAt)}</td>
+          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;"></td>
+          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;"></td>
+        </tr>
+        <tr>
           <td style="padding:0 40px 4px;color:#999999;font-size:11px;">Vehicle</td>
           <td style="padding:0 40px 4px;color:#999999;font-size:11px;">Plate Number</td>
           <td style="padding:0 40px 4px;color:#999999;font-size:11px;">Work Order</td>
@@ -105,6 +117,10 @@ const buildInvoiceMarkup = (inv) => {
           </td>
         </tr>
       </table>
+
+      <div style="padding:12px 40px 0;">
+        <div style="color:#777777;font-size:9.5px;line-height:1.6;white-space:normal;">${warrantyHtml}</div>
+      </div>
 
       <div style="margin:20px 40px 0;border-top:1px solid #DC2626;padding:12px 0;">
         <table style="width:100%;border-collapse:collapse;">

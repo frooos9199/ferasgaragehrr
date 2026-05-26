@@ -5,6 +5,7 @@ import { formatCurrency, formatDate, sendInvoiceWhatsApp, generateOrderNumber } 
 import { FiPlus, FiSend, FiSearch, FiPrinter, FiEdit2, FiTrash2, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { generateInvoicePDF } from '../../utils/pdfGenerator'
 import toast from 'react-hot-toast'
+import { INVOICE_WARRANTY_NOTE_EN } from '../../config/constants'
 
 const PAGE_SIZE = 15
 
@@ -57,6 +58,7 @@ export default function Invoices() {
       if (!order) return toast.error('Select work order')
       await add({
         number: generateOrderNumber().replace('HRR', 'INV'),
+        receivedAt: order.createdAt,
         orderId: order.id,
         orderNumber: order.orderNumber,
         customerId: order.customerId,
@@ -110,7 +112,8 @@ export default function Invoices() {
 
   const generatePDF = async (inv) => {
     toast.loading('📄 Generating PDF...')
-    await generateInvoicePDF(inv)
+    const order = orders.find(o => o.id === inv.orderId)
+    await generateInvoicePDF({ ...inv, receivedAt: inv.receivedAt || order?.createdAt })
     toast.dismiss()
     toast.success('📄 PDF Downloaded!')
   }
@@ -219,6 +222,10 @@ export default function Invoices() {
             {selectedInvoice?.id === inv.id && (
               <div className="mt-4 pt-4 border-t border-hrr-silver/10">
                 <div className="bg-hrr-steel rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-hrr-silver">Vehicle Received</span>
+                    <span>{formatDate(inv.receivedAt || orders.find(o => o.id === inv.orderId)?.createdAt || inv.createdAt)}</span>
+                  </div>
                   {(inv.items || []).map((item, i) => (
                     <div key={i} className="flex justify-between text-sm">
                       <span>{item.name}</span>
@@ -240,6 +247,11 @@ export default function Invoices() {
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-hrr-silver/20">
                     <span>Total</span>
                     <span className="text-hrr-gold">{formatCurrency(inv.total)}</span>
+                  </div>
+
+                  <div className="pt-2 border-t border-hrr-silver/20">
+                    <p className="text-xs text-hrr-silver mb-1">Warranty Notice</p>
+                    <p className="text-xs text-hrr-silver whitespace-pre-wrap leading-6">{INVOICE_WARRANTY_NOTE_EN}</p>
                   </div>
                 </div>
               </div>

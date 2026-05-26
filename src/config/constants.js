@@ -25,6 +25,10 @@ export const USER_ROLES = { ADMIN: 'admin', TECHNICIAN: 'technician' }
 
 export const WHATSAPP_NUMBER = '96550540999'
 
+export const INVOICE_WARRANTY_NOTE_EN = `Warranty Notice:
+Warranty is void if the vehicle is tuned/programmed by any party other than HOT ROD RACING (HRR) or Ford Alghanim authorized dealers, or if non-genuine Ford performance parts are installed (including aftermarket gear shifters or performance clutch modifications).
+Warranty may also be void in cases of misuse/abuse or if engine oil and filter are not replaced within 3,000-4,000 km.`
+
 export const CURRENCY = 'KWD'
 
 export const WORK_ORDER_TEMPLATES = [
