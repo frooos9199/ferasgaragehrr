@@ -57,7 +57,7 @@
   "inventory_minimum_below_cost_warning": "সতর্কতা: সর্বনিম্ন বিক্রয় মূল্য ক্রয়মূল্যের চেয়ে কম",
   "inventory_add_images": "পার্টের ছবি যোগ করুন",
   "inventory_uploading_images": "ছবি আপলোড হচ্ছে...",
-  "inventory_invalid_images": "প্রতি ছবি ৮ MB-এর মধ্যে হতে হবে",
+  "inventory_invalid_images": "সমর্থিত ফরম্যাট: JPG, PNG, WebP, GIF, AVIF ও BMP; প্রতিটি ছবি সর্বোচ্চ ৮ MB",
   "inventory_save_failed": "পার্ট বা ছবি সংরক্ষণ করা যায়নি",
   "min_quantity": "ন্যূনতম পরিমাণ",
   "low_stock": "কম স্টক",

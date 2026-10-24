@@ -7,6 +7,8 @@ import { formatCurrency } from '../../utils/helpers'
 import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiAlertTriangle, FiUpload } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
+const supportedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif', 'image/bmp'])
+
 export default function Inventory() {
   const { t } = useTranslation()
   const { data: items, add, update, remove } = useCollection('inventory')
@@ -39,7 +41,7 @@ export default function Inventory() {
       for (const file of selectedImages) {
         const fileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
         const imageRef = ref(storage, `inventory/${Date.now()}_${crypto.randomUUID()}_${fileName}`)
-        await uploadBytes(imageRef, file)
+        await uploadBytes(imageRef, file, { contentType: file.type })
         const uploadedImage = { path: imageRef.fullPath }
         uploadedImages.push(uploadedImage)
         uploadedImage.url = await getDownloadURL(imageRef)
@@ -69,7 +71,7 @@ export default function Inventory() {
 
   const handleImageSelection = (event) => {
     const files = Array.from(event.target.files || [])
-    const validFiles = files.filter(file => file.type.startsWith('image/') && file.size <= 8 * 1024 * 1024)
+    const validFiles = files.filter(file => supportedImageTypes.has(file.type) && file.size <= 8 * 1024 * 1024)
     if (validFiles.length !== files.length) toast.error(t('inventory_invalid_images'))
     setSelectedImages(current => [...current, ...validFiles])
     event.target.value = ''
@@ -101,7 +103,7 @@ export default function Inventory() {
           <div className="col-span-1 sm:col-span-2">
             <label className="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm hover:bg-white/5">
               <FiUpload /> {t('inventory_add_images')}
-              <input ref={imageInputRef} type="file" accept="image/*" multiple onChange={handleImageSelection} className="sr-only" />
+              <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp" multiple onChange={handleImageSelection} className="sr-only" />
             </label>
             {(editing?.images?.length > 0 || selectedImages.length > 0) && (
               <div className="mt-3 flex flex-wrap gap-2">

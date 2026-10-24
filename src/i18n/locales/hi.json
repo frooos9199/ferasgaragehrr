@@ -57,7 +57,7 @@
   "inventory_minimum_below_cost_warning": "चेतावनी: न्यूनतम बिक्री मूल्य लागत मूल्य से कम है",
   "inventory_add_images": "पार्ट की तस्वीरें जोड़ें",
   "inventory_uploading_images": "तस्वीरें अपलोड हो रही हैं...",
-  "inventory_invalid_images": "हर तस्वीर ८ MB से कम की वैध छवि होनी चाहिए",
+  "inventory_invalid_images": "समर्थित फ़ॉर्मेट: JPG, PNG, WebP, GIF, AVIF और BMP; हर तस्वीर अधिकतम ८ MB",
   "inventory_save_failed": "पार्ट या तस्वीरें सेव नहीं हो सकीं",
   "min_quantity": "न्यूनतम मात्रा",
   "low_stock": "कम स्टॉक",

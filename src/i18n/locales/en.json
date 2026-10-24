@@ -57,7 +57,7 @@
   "inventory_minimum_below_cost_warning": "Warning: The minimum selling price is below the cost price",
   "inventory_add_images": "Add part photos",
   "inventory_uploading_images": "Uploading photos...",
-  "inventory_invalid_images": "Choose valid images no larger than 8 MB each",
+  "inventory_invalid_images": "Supported formats: JPG, PNG, WebP, GIF, AVIF and BMP; maximum 8 MB per image",
   "inventory_save_failed": "Could not save the part or upload its photos",
   "min_quantity": "Min Quantity",
   "low_stock": "Low Stock",

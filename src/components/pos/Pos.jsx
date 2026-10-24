@@ -161,17 +161,16 @@ export default function Pos() {
   }
 
   const setItemPrice = (index, value) => {
-    const price = Math.max(0, Number(value) || 0)
     const item = cart[index]
-    if (item?.inventoryId && price < item.minimumPrice) {
-      toast.error(t('pos_minimum_price_warning'))
-      return
-    }
+    const price = item?.inventoryId ? value : Math.max(0, Number(value) || 0)
     setCart(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, price } : item))
   }
 
   const checkout = async () => {
     if (!cart.length) return toast.error(t('pos_cart_empty'))
+    if (cart.some(item => item.inventoryId && Number(item.price) < item.minimumPrice)) {
+      return toast.error(t('pos_minimum_price_warning'))
+    }
     setSaving(true)
     try {
       const stockRequirements = new Map()
@@ -402,7 +401,16 @@ export default function Pos() {
                     <span className="min-w-6 text-center font-bold">{item.quantity}</span>
                     <button onClick={() => changeQuantity(index, 1)} className="grid h-8 w-8 place-items-center rounded border border-white/15" aria-label={t('pos_increase')}><FiPlus size={13} /></button>
                   </div>
-                  <input type="number" min={item.inventoryId ? item.minimumPrice : 0} step="0.001" value={item.price} onChange={event => setItemPrice(index, event.target.value)} className="input-field w-28 py-2 text-end" aria-label={t('pos_price')} />
+                  <input
+                    type="number"
+                    min={item.inventoryId ? item.minimumPrice : 0}
+                    step="0.001"
+                    value={item.price}
+                    onChange={event => setItemPrice(index, event.target.value)}
+                    className={`input-field w-28 py-2 text-end ${item.inventoryId && Number(item.price) < item.minimumPrice ? 'border-red-500 text-red-400 focus:border-red-500' : ''}`}
+                    aria-label={t('pos_price')}
+                    aria-invalid={Boolean(item.inventoryId && Number(item.price) < item.minimumPrice)}
+                  />
                   <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
                 </div>
               </div>

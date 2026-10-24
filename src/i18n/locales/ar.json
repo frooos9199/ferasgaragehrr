@@ -57,7 +57,7 @@
   "inventory_minimum_below_cost_warning": "تنبيه: الحد الأدنى لسعر البيع أقل من سعر التكلفة",
   "inventory_add_images": "إضافة صور للقطعة",
   "inventory_uploading_images": "جاري رفع الصور...",
-  "inventory_invalid_images": "اختر صورًا صالحة لا يتجاوز حجم كل منها ٨ ميجابايت",
+  "inventory_invalid_images": "الصيغ المدعومة: JPG وPNG وWebP وGIF وAVIF وBMP، وبحد أقصى ٨ ميجابايت للصورة",
   "inventory_save_failed": "تعذر حفظ القطعة أو رفع صورها",
   "min_quantity": "الحد الأدنى",
   "low_stock": "مخزون منخفض",
