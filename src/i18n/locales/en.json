@@ -63,6 +63,7 @@
   "low_stock": "Low Stock",
   "invoice": "Invoice",
   "total": "Total",
+  "invoice_discount": "Discount",
   "labor_cost": "Labor Cost",
   "parts_cost": "Parts Cost",
   "send_whatsapp": "Send WhatsApp",

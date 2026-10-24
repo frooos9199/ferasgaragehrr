@@ -63,6 +63,7 @@
   "low_stock": "مخزون منخفض",
   "invoice": "فاتورة",
   "total": "المجموع",
+  "invoice_discount": "الخصم",
   "labor_cost": "أجرة الشغل",
   "parts_cost": "قطع الغيار",
   "send_whatsapp": "إرسال واتساب",

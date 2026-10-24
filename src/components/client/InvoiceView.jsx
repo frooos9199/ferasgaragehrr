@@ -73,9 +73,17 @@ export default function InvoiceView() {
         <h3 className="font-bold mb-3">Details</h3>
         {items.length === 0 && <p className="text-hrr-silver">No items</p>}
         {items.map((item, i) => (
-          <div key={i} className="flex justify-between text-sm mb-1">
-            <span className="text-hrr-silver">{item?.name || '-'}</span>
-            <span>{formatCurrency(item?.price || 0)}</span>
+          <div key={i} className="mb-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-hrr-silver">{item?.name || '-'}</span>
+              <span>{formatCurrency(item?.price || 0)}</span>
+            </div>
+            {Number(item?.discountAmount) > 0 && (
+              <div className="flex justify-between text-xs text-emerald-300">
+                <span>Discount</span>
+                <span>-{formatCurrency(item.discountAmount)}</span>
+              </div>
+            )}
           </div>
         ))}
 

@@ -40,6 +40,14 @@ const buildInvoiceMarkup = (inv) => {
         <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;color:#222;">${descriptionHTML}</td>
         <td dir="ltr" style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;font-weight:bold;font-size:14px;color:#222;unicode-bidi:isolate;">${formatCurrency(Number(item.price) || 0)}</td>
       </tr>`
+    if (Number(item.discountAmount) > 0) {
+      rowsHTML += `
+        <tr>
+          <td style="padding:0 12px 10px;border-bottom:1px solid #eee;"></td>
+          <td style="padding:0 12px 10px;border-bottom:1px solid #eee;font-size:12px;color:#16803c;">Discount</td>
+          <td dir="ltr" style="padding:0 12px 10px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;font-size:12px;color:#16803c;unicode-bidi:isolate;">-${formatCurrency(Number(item.discountAmount))}</td>
+        </tr>`
+    }
   })
   if (inv.laborCost > 0) {
     rowsHTML += `

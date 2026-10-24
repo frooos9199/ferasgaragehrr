@@ -236,9 +236,17 @@ export default function Invoices() {
                     <span>{formatDate(inv.receivedAt || orders.find(o => o.id === inv.orderId)?.createdAt || inv.createdAt)}</span>
                   </div>
                   {(inv.items || []).map((item, i) => (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span>{item.name}</span>
-                      <span>{formatCurrency(item.price)}</span>
+                    <div key={i} className="text-sm">
+                      <div className="flex justify-between">
+                        <span>{item.name}</span>
+                        <span>{formatCurrency(item.price)}</span>
+                      </div>
+                      {Number(item.discountAmount) > 0 && (
+                        <div className="flex justify-between text-xs text-emerald-300">
+                          <span>{t('invoice_discount')}</span>
+                          <span>-{formatCurrency(item.discountAmount)}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                   {inv.laborCost > 0 && (

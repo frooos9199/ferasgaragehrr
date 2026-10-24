@@ -192,7 +192,23 @@ export default function Pos() {
         carModel: selectedCar?.model || '',
         carYear: selectedCar?.year || '',
         carPlate: selectedCar?.plateNumber || '',
-      items: cart.map(({ name, nameAr, nameEn, nameBn, nameHi, price, quantity, inventoryId, type }) => ({ name, nameAr: nameAr || name, nameEn: nameEn || name, nameBn: nameBn || '', nameHi: nameHi || '', price: price * quantity, quantity, inventoryId: inventoryId || '', type: type || (inventoryId ? 'part' : 'service') })),
+      items: cart.map(({ name, nameAr, nameEn, nameBn, nameHi, price, originalPrice, quantity, inventoryId, type }) => {
+        const linePrice = Number(price) * quantity
+        const discountAmount = Math.max(0, (Number(originalPrice ?? price) - Number(price)) * quantity)
+        return {
+          name,
+          nameAr: nameAr || name,
+          nameEn: nameEn || name,
+          nameBn: nameBn || '',
+          nameHi: nameHi || '',
+          price: linePrice,
+          originalPrice: discountAmount > 0 ? Number(originalPrice) * quantity : linePrice,
+          discountAmount,
+          quantity,
+          inventoryId: inventoryId || '',
+          type: type || (inventoryId ? 'part' : 'service'),
+        }
+      }),
         laborCost: 0,
         total,
         paymentMethod,
@@ -352,7 +368,7 @@ export default function Pos() {
             <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
               {activeCategory !== 'parts' && visibleQuickItems.map(item => (
                 <div key={item.id} className="flex min-h-20 items-stretch rounded-lg border border-emerald-400/20 bg-emerald-400/5">
-                  <button onClick={() => addItem({ name: getLocalizedItemName(item), nameAr: item.nameAr || item.name, nameEn: item.nameEn || item.name, nameBn: item.nameBn || '', nameHi: item.nameHi || '', price: Number(item.price) || 0, type: getQuickItemKind(item), includedParts: item.includedParts || [] })} className="flex min-w-0 flex-1 items-center justify-between gap-3 p-3 text-start transition hover:bg-emerald-400/10">
+                  <button onClick={() => addItem({ name: getLocalizedItemName(item), nameAr: item.nameAr || item.name, nameEn: item.nameEn || item.name, nameBn: item.nameBn || '', nameHi: item.nameHi || '', price: Number(item.price) || 0, originalPrice: Number(item.price) || 0, type: getQuickItemKind(item), includedParts: item.includedParts || [] })} className="flex min-w-0 flex-1 items-center justify-between gap-3 p-3 text-start transition hover:bg-emerald-400/10">
                     <span className="min-w-0"><span className="block truncate font-semibold">{getLocalizedItemName(item)}</span><span className="text-xs text-hrr-silver">{t(`pos_category_${getQuickItemKind(item)}`)} · {t('pos_tap_to_add')}</span></span>
                     <span className="shrink-0 text-sm font-bold text-emerald-300">{formatCurrency(item.price || 0)}</span>
                   </button>
@@ -369,6 +385,7 @@ export default function Pos() {
               <button key={item.id} onClick={() => addItem({
                 name: item.partName,
                 price: Number(item.sellPrice) || 0,
+                originalPrice: Number(item.sellPrice) || 0,
                 minimumPrice: Number(item.minSellPrice ?? item.sellPrice) || 0,
                 inventoryId: item.id,
                 stock: Number(item.quantity) || 0,
@@ -396,7 +413,12 @@ export default function Pos() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 items-start gap-2">
                     {item.image && <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded object-cover" />}
-                    <div className="min-w-0"><p className="truncate font-semibold">{getLocalizedItemName(item)}</p><p className="text-xs text-hrr-silver">{formatCurrency(item.price)} {t('pos_each')}</p>{item.includedParts?.length > 0 && <p className="mt-1 text-xs text-hrr-silver">{t('pos_includes_parts')}: {item.includedParts.map(part => `${part.name} ×${part.quantity}`).join('، ')}</p>}</div>
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold">{getLocalizedItemName(item)}</p>
+                      <p className="text-xs text-hrr-silver">{formatCurrency(item.price)} {t('pos_each')}</p>
+                      {Number(item.price) < item.originalPrice && <p className="text-xs font-semibold text-emerald-300">{t('invoice_discount')}: {formatCurrency((item.originalPrice - Number(item.price)) * item.quantity)}</p>}
+                      {item.includedParts?.length > 0 && <p className="mt-1 text-xs text-hrr-silver">{t('pos_includes_parts')}: {item.includedParts.map(part => `${part.name} ×${part.quantity}`).join('، ')}</p>}
+                    </div>
                   </div>
                   <button onClick={() => setCart(current => current.filter((_, itemIndex) => itemIndex !== index))} className="p-1 text-red-300" title={t('delete')}><FiTrash2 /></button>
                 </div>
