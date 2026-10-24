@@ -17,7 +17,7 @@ export default function Invoices() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
-  const [form, setForm] = useState({ orderId: '', laborCost: 0, notes: '', items: [{ name: '', price: 0 }] })
+  const [form, setForm] = useState({ orderId: '', customerName: '', laborCost: 0, notes: '', items: [{ name: '', price: 0 }] })
   const [page, setPage] = useState(0)
   const notesRef = useRef(null)
 
@@ -47,6 +47,7 @@ export default function Invoices() {
 
     if (editingId) {
       await update(editingId, {
+        customerName: form.customerName.trim(),
         items: form.items.filter(i => i.name),
         laborCost: Number(form.laborCost),
         notes: form.notes?.trim() || '',
@@ -81,13 +82,14 @@ export default function Invoices() {
   const resetForm = () => {
     setShowForm(false)
     setEditingId(null)
-    setForm({ orderId: '', laborCost: 0, notes: '', items: [{ name: '', price: 0 }] })
+    setForm({ orderId: '', customerName: '', laborCost: 0, notes: '', items: [{ name: '', price: 0 }] })
   }
 
   const startEdit = (inv) => {
     setEditingId(inv.id)
     setForm({
       orderId: inv.orderId || '',
+      customerName: inv.customerName || '',
       laborCost: inv.laborCost || 0,
       notes: inv.notes || '',
       items: inv.items?.length ? [...inv.items] : [{ name: '', price: 0 }]
@@ -153,6 +155,13 @@ export default function Invoices() {
               <option value="">{t('work_orders')}...</option>
               {orders.map(o => <option key={o.id} value={o.id}>{o.orderNumber} - {o.customerName} - Ford {o.carModel}</option>)}
             </select>
+          )}
+
+          {editingId && (
+            <div className="mb-3">
+              <label className="text-sm text-hrr-silver mb-1 block">{t('customer')}</label>
+              <input value={form.customerName} onChange={e => setForm({ ...form, customerName: e.target.value })} className="input-field" placeholder={t('pos_customer_name_optional')} />
+            </div>
           )}
 
           <label className="text-sm text-hrr-silver mb-1 block">{t('parts_cost')}</label>

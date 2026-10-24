@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { db } from '../config/firebase'
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore'
 
-export function useCollection(collectionName) {
+export function useCollection(collectionName, { sortByCreatedAt = true } = {}) {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'))
+    const source = collection(db, collectionName)
+    const q = sortByCreatedAt ? query(source, orderBy('createdAt', 'desc')) : source
     const unsub = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map(d => ({
         id: d.id,

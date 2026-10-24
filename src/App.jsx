@@ -14,6 +14,8 @@ import Reports from './components/reports/Reports'
 import Settings from './components/settings/Settings'
 import Store from './components/store/Store'
 import Employees from './components/employees/Employees'
+import Pos from './components/pos/Pos'
+import PurchasesExpenses from './components/accounting/PurchasesExpenses'
 import ClientView from './components/client/ClientView'
 import InvoiceView from './components/client/InvoiceView'
 import { Toaster } from 'react-hot-toast'
@@ -32,6 +34,8 @@ function AdminRoutes() {
         <Route path="/work-orders" element={<WorkOrders />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/invoices" element={<Invoices />} />
+        <Route path="/pos" element={<Pos />} />
+        <Route path="/purchases-expenses" element={<PurchasesExpenses />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/store-manage" element={<Store />} />
@@ -39,6 +43,13 @@ function AdminRoutes() {
       </Route>
     </Routes>
   )
+}
+
+function CashierRoute() {
+  const { user, loading } = useAuth()
+  if (loading) return <div className="min-h-screen bg-hrr-dark flex items-center justify-center text-white text-xl">🏁 HRR Loading...</div>
+  if (!user) return <LoginPage />
+  return <main className="min-h-screen bg-hrr-dark p-4 md:p-6"><Pos /></main>
 }
 
 export default function App() {
@@ -51,6 +62,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/client/:orderId" element={<ClientView />} />
             <Route path="/invoice/:invoiceId" element={<InvoiceView />} />
+            <Route path="/cashier" element={<CashierRoute />} />
             <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>
         </BrowserRouter>

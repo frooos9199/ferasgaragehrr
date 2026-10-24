@@ -13,6 +13,13 @@ const escapeHtml = (value) => String(value)
 const buildInvoiceMarkup = (inv) => {
   const items = inv.items || []
   const warrantyHtml = escapeHtml(INVOICE_WARRANTY_NOTE_EN).replaceAll('\n', '<br/>')
+  const invoiceNumber = escapeHtml(inv.number || '-')
+  const customerName = escapeHtml(inv.customerName || '-')
+  const customerPhone = escapeHtml(inv.customerPhone || '-')
+  const vehicle = escapeHtml(`Ford ${inv.carModel || ''} ${inv.carYear || ''}`.trim())
+  const plateNumber = escapeHtml(inv.carPlate || '-')
+  const workOrderNumber = escapeHtml(inv.orderNumber || '-')
+  const totalAmount = formatCurrency(Number(inv.total) || 0)
   const notesSection = inv.notes
     ? `
       <div style="padding:0 40px 20px;">
@@ -22,11 +29,16 @@ const buildInvoiceMarkup = (inv) => {
     : ''
   let rowsHTML = ''
   items.forEach((item, i) => {
+    const arabicName = item.nameAr || item.name || ''
+    const englishName = item.nameEn || ''
+    const descriptionHTML = englishName && englishName !== arabicName
+      ? `<div dir="rtl" style="text-align:right;">${escapeHtml(arabicName)}</div><div dir="ltr" style="text-align:left;color:#666;font-size:12px;margin-top:3px;">${escapeHtml(englishName)}</div>`
+      : escapeHtml(arabicName)
     rowsHTML += `
       <tr>
         <td style="padding:10px 12px;border-bottom:1px solid #eee;color:#888;width:40px;font-size:13px;">${i + 1}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;color:#222;">${item.name || ''}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;font-size:14px;color:#222;">${formatCurrency(item.price)}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;color:#222;">${descriptionHTML}</td>
+        <td dir="ltr" style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;font-weight:bold;font-size:14px;color:#222;unicode-bidi:isolate;">${formatCurrency(Number(item.price) || 0)}</td>
       </tr>`
   })
   if (inv.laborCost > 0) {
@@ -34,12 +46,12 @@ const buildInvoiceMarkup = (inv) => {
       <tr>
         <td style="padding:10px 12px;border-bottom:1px solid #eee;color:#888;font-size:13px;">${items.length + 1}</td>
         <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;color:#222;">Labor Cost</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;font-size:14px;color:#222;">${formatCurrency(inv.laborCost)}</td>
+        <td dir="ltr" style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;font-weight:bold;font-size:14px;color:#222;unicode-bidi:isolate;">${formatCurrency(Number(inv.laborCost) || 0)}</td>
       </tr>`
   }
 
   return `
-    <div style="width:794px;background:#fff;color:#000;">
+    <div dir="ltr" style="width:794px;min-height:1123px;display:flex;flex-direction:column;background:#fff;color:#000;font-family:'Cairo',sans-serif;">
       <div style="height:8px;background:#DC2626;"></div>
       
       <div style="background:#111111;padding:30px 40px;text-align:center;">
@@ -48,23 +60,23 @@ const buildInvoiceMarkup = (inv) => {
         <div style="color:#777777;font-size:11px;margin-top:4px;">Managed by Firas Al-Otaibi</div>
       </div>
 
-      <table style="width:100%;border-collapse:collapse;background:#1E1E1E;">
+      <table dir="ltr" style="width:100%;border-collapse:collapse;background:#1E1E1E;">
         <tr>
           <td style="padding:12px 40px;color:#ffffff;font-size:16px;font-weight:bold;letter-spacing:2px;">INVOICE</td>
-          <td style="padding:12px 40px;color:#DC2626;font-size:16px;font-weight:bold;text-align:right;">#${inv.number}</td>
+          <td dir="ltr" style="padding:12px 40px;color:#DC2626;font-size:16px;font-weight:bold;text-align:right;unicode-bidi:isolate;">#${invoiceNumber}</td>
         </tr>
       </table>
 
-      <table style="width:100%;border-collapse:collapse;padding:0;">
+      <table dir="ltr" style="width:100%;border-collapse:collapse;padding:0;table-layout:fixed;">
         <tr>
           <td style="padding:20px 40px 4px;color:#999999;font-size:11px;width:33%;">Date</td>
           <td style="padding:20px 40px 4px;color:#999999;font-size:11px;width:33%;">Customer</td>
           <td style="padding:20px 40px 4px;color:#999999;font-size:11px;width:33%;">Phone</td>
         </tr>
         <tr>
-          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;">${formatDate(inv.createdAt)}</td>
-          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;" dir="auto">${inv.customerName || '-'}</td>
-          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;" dir="ltr">${inv.customerPhone || '-'}</td>
+          <td dir="ltr" style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;unicode-bidi:isolate;">${formatDate(inv.createdAt)}</td>
+          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;" dir="auto">${customerName}</td>
+          <td dir="ltr" style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;unicode-bidi:isolate;">${customerPhone}</td>
         </tr>
         <tr>
           <td style="padding:0 40px 4px;color:#999999;font-size:11px;">Vehicle Received</td>
@@ -72,7 +84,7 @@ const buildInvoiceMarkup = (inv) => {
           <td style="padding:0 40px 4px;color:#999999;font-size:11px;"></td>
         </tr>
         <tr>
-          <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;">${formatDate(inv.receivedAt || inv.createdAt)}</td>
+          <td dir="ltr" style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;unicode-bidi:isolate;">${formatDate(inv.receivedAt || inv.createdAt)}</td>
           <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;"></td>
           <td style="padding:2px 40px 16px;font-size:14px;font-weight:bold;color:#000000;"></td>
         </tr>
@@ -82,21 +94,21 @@ const buildInvoiceMarkup = (inv) => {
           <td style="padding:0 40px 4px;color:#999999;font-size:11px;">Work Order</td>
         </tr>
         <tr>
-          <td style="padding:2px 40px 20px;font-size:14px;font-weight:bold;color:#000000;">Ford ${inv.carModel || ''} ${inv.carYear || ''}</td>
-          <td style="padding:2px 40px 20px;font-size:14px;font-weight:bold;color:#000000;">${inv.carPlate || '-'}</td>
-          <td style="padding:2px 40px 20px;font-size:14px;font-weight:bold;color:#000000;">${inv.orderNumber || '-'}</td>
+          <td dir="ltr" style="padding:2px 40px 20px;font-size:14px;font-weight:bold;color:#000000;unicode-bidi:isolate;">${vehicle}</td>
+          <td dir="ltr" style="padding:2px 40px 20px;font-size:14px;font-weight:bold;color:#000000;unicode-bidi:isolate;">${plateNumber}</td>
+          <td dir="ltr" style="padding:2px 40px 20px;font-size:14px;font-weight:bold;color:#000000;unicode-bidi:isolate;">${workOrderNumber}</td>
         </tr>
       </table>
 
       <div style="margin:0 40px;height:2px;background:#DC2626;"></div>
 
       <div style="padding:20px 28px;">
-        <table style="width:100%;border-collapse:collapse;">
+        <table dir="ltr" style="width:100%;border-collapse:collapse;table-layout:fixed;">
           <thead>
             <tr style="background:#f5f5f5;">
               <th style="padding:10px 12px;text-align:left;color:#666666;font-size:12px;font-weight:bold;width:40px;">#</th>
               <th style="padding:10px 12px;text-align:left;color:#666666;font-size:12px;font-weight:bold;">Description</th>
-              <th style="padding:10px 12px;text-align:right;color:#666666;font-size:12px;font-weight:bold;">Amount (KWD)</th>
+              <th dir="ltr" style="padding:10px 12px;text-align:right;color:#666666;font-size:12px;font-weight:bold;white-space:nowrap;unicode-bidi:isolate;">Amount (KWD)</th>
             </tr>
           </thead>
           <tbody>${rowsHTML}</tbody>
@@ -105,13 +117,13 @@ const buildInvoiceMarkup = (inv) => {
 
       ${notesSection}
 
-      <table style="width:100%;border-collapse:collapse;">
+      <table dir="ltr" style="width:100%;border-collapse:collapse;">
         <tr>
           <td style="padding:10px 40px;text-align:right;">
-            <table style="margin-left:auto;border-collapse:collapse;">
+            <table dir="ltr" style="margin-left:auto;border-collapse:collapse;">
               <tr>
                 <td style="background:#DC2626;color:#ffffff;padding:14px 24px;font-size:14px;font-weight:bold;border-radius:8px 0 0 8px;">TOTAL</td>
-                <td style="background:#DC2626;color:#ffffff;padding:14px 24px;font-size:22px;font-weight:900;border-radius:0 8px 8px 0;">${formatCurrency(inv.total)}</td>
+                <td dir="ltr" style="background:#DC2626;color:#ffffff;padding:14px 24px;font-size:22px;font-weight:900;border-radius:0 8px 8px 0;white-space:nowrap;unicode-bidi:isolate;">${totalAmount}</td>
               </tr>
             </table>
           </td>
@@ -119,11 +131,11 @@ const buildInvoiceMarkup = (inv) => {
       </table>
 
       <div style="padding:12px 40px 0;">
-        <div style="color:#777777;font-size:9.5px;line-height:1.6;white-space:normal;">${warrantyHtml}</div>
+        <div dir="ltr" style="color:#777777;font-size:9.5px;line-height:1.6;white-space:normal;text-align:left;unicode-bidi:isolate;">${warrantyHtml}</div>
       </div>
 
-      <div style="margin:20px 40px 0;border-top:1px solid #DC2626;padding:12px 0;">
-        <table style="width:100%;border-collapse:collapse;">
+      <div style="margin:auto 40px 0;border-top:1px solid #DC2626;padding:12px 0 0;">
+        <table dir="ltr" style="width:100%;border-collapse:collapse;">
           <tr>
             <td style="color:#999999;font-size:10px;">HOT ROD RACING - HRR | Ford Specialist Workshop</td>
             <td style="color:#999999;font-size:10px;text-align:right;">+96550540999 | Kuwait</td>

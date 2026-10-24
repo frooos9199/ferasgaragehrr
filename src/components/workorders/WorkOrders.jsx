@@ -124,6 +124,11 @@ export default function WorkOrders() {
       const inv = inventoryItems.find(i => i.id === value)
       if (inv) parts[idx] = { ...parts[idx], inventoryId: value, name: inv.partName, price: inv.sellPrice || inv.buyPrice || 0 }
     } else {
+      if (field === 'price' && parts[idx]?.inventoryId) {
+        const inv = inventoryItems.find(i => i.id === parts[idx].inventoryId)
+        const minSellPrice = Number(inv?.minSellPrice ?? inv?.sellPrice ?? 0)
+        if (Number(value) < minSellPrice) return toast.error(t('pos_minimum_price_warning'))
+      }
       parts[idx] = { ...parts[idx], [field]: field === 'name' ? value : Number(value) }
     }
     const partsCost = parts.reduce((s, p) => s + (p.price * p.quantity), 0)
@@ -159,6 +164,13 @@ export default function WorkOrders() {
   }
 
   const createInvoice = async (order) => {
+    const belowMinimumPrice = (order.parts || []).some(part => {
+      if (!part.inventoryId) return false
+      const inventoryItem = inventoryItems.find(item => item.id === part.inventoryId)
+      return inventoryItem && Number(part.price) < Number(inventoryItem.minSellPrice ?? inventoryItem.sellPrice ?? 0)
+    })
+    if (belowMinimumPrice) return toast.error(t('pos_minimum_price_warning'))
+
     const items = [
       ...(order.parts || []).map(p => ({ name: p.name, price: p.price * p.quantity })),
       ...(order.laborCost > 0 ? [{ name: 'Labor', price: order.laborCost }] : [])

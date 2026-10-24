@@ -11,7 +11,7 @@ export default function Inventory() {
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState({ partName: '', partNumber: '', quantity: 0, minQuantity: 5, buyPrice: 0, sellPrice: 0 })
+  const [form, setForm] = useState({ partName: '', partNumber: '', quantity: 0, minQuantity: 5, buyPrice: 0, sellPrice: 0, minSellPrice: '' })
 
   const filtered = items.filter(i =>
     i.partName?.includes(search) || i.partNumber?.includes(search)
@@ -19,17 +19,18 @@ export default function Inventory() {
 
   const handleSave = async () => {
     if (!form.partName) return toast.error('Fill part name')
-    const data = { ...form, quantity: Number(form.quantity), minQuantity: Number(form.minQuantity), buyPrice: Number(form.buyPrice), sellPrice: Number(form.sellPrice) }
+    const minSellPrice = form.minSellPrice === '' ? Number(form.sellPrice) : Number(form.minSellPrice)
+    const data = { ...form, quantity: Number(form.quantity), minQuantity: Number(form.minQuantity), buyPrice: Number(form.buyPrice), sellPrice: Number(form.sellPrice), minSellPrice }
     if (editing) await update(editing.id, data)
     else await add(data)
-    setForm({ partName: '', partNumber: '', quantity: 0, minQuantity: 5, buyPrice: 0, sellPrice: 0 })
+    setForm({ partName: '', partNumber: '', quantity: 0, minQuantity: 5, buyPrice: 0, sellPrice: 0, minSellPrice: '' })
     setShowForm(false)
     setEditing(null)
     toast.success('✅')
   }
 
   const handleEdit = (i) => {
-    setForm({ partName: i.partName, partNumber: i.partNumber, quantity: i.quantity, minQuantity: i.minQuantity, buyPrice: i.buyPrice, sellPrice: i.sellPrice })
+    setForm({ partName: i.partName, partNumber: i.partNumber, quantity: i.quantity, minQuantity: i.minQuantity, buyPrice: i.buyPrice, sellPrice: i.sellPrice, minSellPrice: i.minSellPrice ?? i.sellPrice ?? '' })
     setEditing(i)
     setShowForm(true)
   }
@@ -38,7 +39,7 @@ export default function Inventory() {
     <div>
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h2 className="font-heading text-xl md:text-2xl font-bold">{t('inventory')}</h2>
-        <button onClick={() => { setShowForm(true); setEditing(null); setForm({ partName: '', partNumber: '', quantity: 0, minQuantity: 5, buyPrice: 0, sellPrice: 0 }) }} className="btn-primary flex items-center gap-2 text-sm md:text-base py-2 px-3 md:px-6">
+        <button onClick={() => { setShowForm(true); setEditing(null); setForm({ partName: '', partNumber: '', quantity: 0, minQuantity: 5, buyPrice: 0, sellPrice: 0, minSellPrice: '' }) }} className="btn-primary flex items-center gap-2 text-sm md:text-base py-2 px-3 md:px-6">
           <FiPlus /> {t('add')}
         </button>
       </div>
@@ -56,6 +57,12 @@ export default function Inventory() {
           <input type="number" placeholder={t('min_quantity')} value={form.minQuantity} onChange={e => setForm({ ...form, minQuantity: e.target.value })} className="input-field" />
           <input type="number" step="0.001" placeholder={t('buy_price')} value={form.buyPrice} onChange={e => setForm({ ...form, buyPrice: e.target.value })} className="input-field" />
           <input type="number" step="0.001" placeholder={t('sell_price')} value={form.sellPrice} onChange={e => setForm({ ...form, sellPrice: e.target.value })} className="input-field" />
+          <input type="number" min="0" step="0.001" placeholder={t('inventory_min_sell_price')} value={form.minSellPrice} onChange={e => setForm({ ...form, minSellPrice: e.target.value })} className="input-field" />
+          {Number(form.minSellPrice === '' ? form.sellPrice : form.minSellPrice) < Number(form.buyPrice) && (
+            <p className="col-span-1 sm:col-span-2 flex items-center gap-2 text-sm font-semibold text-amber-300" role="alert">
+              <FiAlertTriangle /> {t('inventory_minimum_below_cost_warning')}
+            </p>
+          )}
           <div className="col-span-1 sm:col-span-2 flex gap-2">
             <button onClick={handleSave} className="btn-primary">{t('save')}</button>
             <button onClick={() => { setShowForm(false); setEditing(null) }} className="btn-secondary">{t('cancel')}</button>
@@ -73,6 +80,7 @@ export default function Inventory() {
               <th className="p-3">{t('quantity')}</th>
               <th className="p-3">{t('buy_price')}</th>
               <th className="p-3">{t('sell_price')}</th>
+              <th className="p-3">{t('inventory_min_sell_price')}</th>
               <th className="p-3">{t('actions')}</th>
             </tr>
           </thead>
@@ -87,6 +95,7 @@ export default function Inventory() {
                 <td className={`p-3 text-center font-bold ${i.quantity <= i.minQuantity ? 'text-red-400' : ''}`}>{i.quantity}</td>
                 <td className="p-3 text-center">{formatCurrency(i.buyPrice)}</td>
                 <td className="p-3 text-center">{formatCurrency(i.sellPrice)}</td>
+                <td className="p-3 text-center">{formatCurrency(i.minSellPrice ?? i.sellPrice)}</td>
                 <td className="p-3 text-center">
                   <button onClick={() => handleEdit(i)} className="text-blue-400 mx-1"><FiEdit2 /></button>
                   <button onClick={() => { if (confirm(t('confirm_delete'))) remove(i.id) }} className="text-red-400 mx-1"><FiTrash2 /></button>
@@ -111,6 +120,7 @@ export default function Inventory() {
                     <span className={i.quantity <= i.minQuantity ? 'text-red-400 font-bold' : ''}>{t('quantity')}: {i.quantity}</span>
                     <span>{t('sell_price')}: {formatCurrency(i.sellPrice)}</span>
                   </div>
+                  <p className="mt-1 text-xs text-hrr-silver">{t('inventory_min_sell_price')}: {formatCurrency(i.minSellPrice ?? i.sellPrice)}</p>
                 </div>
                 <div className="flex gap-2 ms-2 shrink-0">
                   <button onClick={() => handleEdit(i)} className="text-blue-400"><FiEdit2 /></button>

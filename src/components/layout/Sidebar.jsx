@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import {
   FiHome, FiUsers, FiTool, FiPackage,
-  FiFileText, FiBarChart2, FiSettings, FiShoppingBag, FiLogOut, FiX, FiUserCheck
+  FiFileText, FiBarChart2, FiSettings, FiShoppingBag, FiLogOut, FiX, FiUserCheck, FiShoppingCart, FiDollarSign
 } from 'react-icons/fi'
 
 export default function Sidebar({ open, onClose }) {
@@ -18,6 +18,8 @@ export default function Sidebar({ open, onClose }) {
     { to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
     { to: '/admin/inventory', icon: <FiPackage />, label: t('inventory') },
     { to: '/admin/invoices', icon: <FiFileText />, label: t('invoices') },
+    { to: '/admin/pos', icon: <FiShoppingCart />, label: t('pos_title') },
+    { to: '/admin/purchases-expenses', icon: <FiDollarSign />, label: t('accounting_title') },
     { to: '/admin/reports', icon: <FiBarChart2 />, label: t('reports') },
     { to: '/admin/store-manage', icon: <FiShoppingBag />, label: t('store') },
     { to: '/admin/employees', icon: <FiUserCheck />, label: t('employees') },
@@ -26,6 +28,7 @@ export default function Sidebar({ open, onClose }) {
 
   const techLinks = [
     { to: '/admin', icon: <FiHome />, label: t('dashboard') },
+    { to: '/admin/pos', icon: <FiShoppingCart />, label: t('pos_title') },
     { to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
     { to: '/admin/customers', icon: <FiUsers />, label: t('customers') },
     { to: '/admin/settings', icon: <FiSettings />, label: t('settings') },

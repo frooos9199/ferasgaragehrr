@@ -64,6 +64,26 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // POS quick-sale buttons - staff can use them, admins manage the catalog
+    match /posQuickItems/{itemId} {
+      allow read: if isStaff();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Purchases and expenses contain financial records; only admins can access them.
+    match /purchases/{purchaseId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Supplier directory is part of the workshop's financial records.
+    match /suppliers/{supplierId} {
+      allow read, write: if isAdmin();
+    }
+
     // Store Products & Parts - public read, admin write
     match /storeProducts/{productId} {
       allow read: if true;
