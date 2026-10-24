@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
+import { canAccessScreen } from '../../config/screenPermissions'
 import {
-  FiHome, FiUsers, FiTool, FiPackage,
+  FiHome, FiUsers, FiTool, FiTruck, FiPackage,
   FiFileText, FiBarChart2, FiSettings, FiShoppingBag, FiLogOut, FiX, FiUserCheck, FiShoppingCart, FiDollarSign
 } from 'react-icons/fi'
 
@@ -10,31 +11,21 @@ export default function Sidebar({ open, onClose }) {
   const { t } = useTranslation()
   const { logout, userData } = useAuth()
 
-  const isAdmin = userData?.role === 'admin'
-
   const adminLinks = [
-    { to: '/admin', icon: <FiHome />, label: t('dashboard') },
-    { to: '/admin/customers', icon: <FiUsers />, label: t('customers') },
-    { to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
-    { to: '/admin/inventory', icon: <FiPackage />, label: t('inventory') },
-    { to: '/admin/invoices', icon: <FiFileText />, label: t('invoices') },
-    { to: '/admin/pos', icon: <FiShoppingCart />, label: t('pos_title') },
-    { to: '/admin/purchases-expenses', icon: <FiDollarSign />, label: t('accounting_title') },
-    { to: '/admin/reports', icon: <FiBarChart2 />, label: t('reports') },
-    { to: '/admin/store-manage', icon: <FiShoppingBag />, label: t('store') },
-    { to: '/admin/employees', icon: <FiUserCheck />, label: t('employees') },
-    { to: '/admin/settings', icon: <FiSettings />, label: t('settings') },
+    { permission: 'dashboard', to: '/admin', icon: <FiHome />, label: t('dashboard') },
+    { permission: 'customers', to: '/admin/customers', icon: <FiUsers />, label: t('customers') },
+    { permission: 'cars', to: '/admin/cars', icon: <FiTruck />, label: t('cars') },
+    { permission: 'workOrders', to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
+    { permission: 'inventory', to: '/admin/inventory', icon: <FiPackage />, label: t('inventory') },
+    { permission: 'invoices', to: '/admin/invoices', icon: <FiFileText />, label: t('invoices') },
+    { permission: 'pos', to: '/admin/pos', icon: <FiShoppingCart />, label: t('pos_title') },
+    { permission: 'purchasesExpenses', to: '/admin/purchases-expenses', icon: <FiDollarSign />, label: t('accounting_title') },
+    { permission: 'reports', to: '/admin/reports', icon: <FiBarChart2 />, label: t('reports') },
+    { permission: 'store', to: '/admin/store-manage', icon: <FiShoppingBag />, label: t('store') },
+    { permission: 'employees', to: '/admin/employees', icon: <FiUserCheck />, label: t('employees') },
+    { permission: 'settings', to: '/admin/settings', icon: <FiSettings />, label: t('settings') },
   ]
-
-  const techLinks = [
-    { to: '/admin', icon: <FiHome />, label: t('dashboard') },
-    { to: '/admin/pos', icon: <FiShoppingCart />, label: t('pos_title') },
-    { to: '/admin/work-orders', icon: <FiTool />, label: t('work_orders') },
-    { to: '/admin/customers', icon: <FiUsers />, label: t('customers') },
-    { to: '/admin/settings', icon: <FiSettings />, label: t('settings') },
-  ]
-
-  const links = isAdmin ? adminLinks : techLinks
+  const links = adminLinks.filter(link => canAccessScreen(userData, link.permission))
 
   return (
     <aside className={`

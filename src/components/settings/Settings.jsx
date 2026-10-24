@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { useCollection } from '../../hooks/useCollection'
-import { FiPlus, FiTrash2, FiGlobe, FiUser, FiShield } from 'react-icons/fi'
+import { FiPlus, FiTrash2, FiGlobe, FiUser, FiShield, FiEdit2 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
+import { SCREEN_PERMISSIONS, getScreenPermissions } from '../../config/screenPermissions'
 
 const LANGS = [
   { code: 'ar', label: 'العربية', flag: '🇸🇦', dir: 'rtl' },
@@ -15,9 +16,11 @@ const LANGS = [
 export default function Settings() {
   const { t, i18n } = useTranslation()
   const { isAdmin, userData } = useAuth()
-  const { data: users, add, remove } = useCollection('users')
+  const { data: users, add, update, remove } = useCollection('users')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', role: 'technician' })
+  const [editingPermissionsId, setEditingPermissionsId] = useState(null)
+  const [selectedPermissions, setSelectedPermissions] = useState([])
 
   const changeLang = (code) => {
     i18n.changeLanguage(code)
@@ -33,6 +36,28 @@ export default function Settings() {
     setForm({ name: '', email: '', role: 'technician' })
     setShowForm(false)
     toast.success('✅')
+  }
+
+  const editPermissions = (employee) => {
+    setEditingPermissionsId(employee.id)
+    setSelectedPermissions(getScreenPermissions(employee))
+  }
+
+  const togglePermission = (permission) => {
+    setSelectedPermissions(current => current.includes(permission)
+      ? current.filter(item => item !== permission)
+      : [...current, permission])
+  }
+
+  const savePermissions = async () => {
+    try {
+      await update(editingPermissionsId, { permissions: selectedPermissions })
+      setEditingPermissionsId(null)
+      toast.success(t('permissions_saved'))
+    } catch (error) {
+      console.error('Saving employee permissions failed:', error)
+      toast.error(t('permissions_save_failed'))
+    }
   }
 
   return (
@@ -110,22 +135,46 @@ export default function Settings() {
 
           <div className="space-y-2">
             {users.map(u => (
-              <div key={u.id} className="flex items-center justify-between p-3 bg-hrr-steel rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-hrr-gray flex items-center justify-center font-bold">
-                    {u.name?.charAt(0) || '?'}
+              <div key={u.id} className="p-3 bg-hrr-steel rounded-lg">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-hrr-gray flex shrink-0 items-center justify-center font-bold">
+                      {u.name?.charAt(0) || '?'}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm">{u.name}</p>
+                      <p className="text-xs text-hrr-silver" dir="ltr">{u.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-sm">{u.name}</p>
-                    <p className="text-xs text-hrr-silver" dir="ltr">{u.email}</p>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className={`badge ${u.role === 'admin' ? 'bg-hrr-red' : 'bg-blue-600'} text-white`}>{t(u.role)}</span>
+                    {u.role !== 'admin' && (
+                      <button onClick={() => editingPermissionsId === u.id ? setEditingPermissionsId(null) : editPermissions(u)} className="text-blue-300 hover:text-blue-200" title={t('screen_permissions')}>
+                        <FiEdit2 />
+                      </button>
+                    )}
+                    <button onClick={() => { if (confirm(t('confirm_delete'))) remove(u.id) }} className="text-red-400 hover:text-red-300">
+                      <FiTrash2 />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`badge ${u.role === 'admin' ? 'bg-hrr-red' : 'bg-blue-600'} text-white`}>{t(u.role)}</span>
-                  <button onClick={() => { if (confirm(t('confirm_delete'))) remove(u.id) }} className="text-red-400 hover:text-red-300">
-                    <FiTrash2 />
-                  </button>
-                </div>
+                {editingPermissionsId === u.id && (
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <p className="mb-3 text-sm font-bold">{t('screen_permissions')}</p>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {SCREEN_PERMISSIONS.map(screen => (
+                        <label key={screen.id} className="flex cursor-pointer items-center gap-2 rounded bg-hrr-gray p-2 text-sm">
+                          <input type="checkbox" checked={selectedPermissions.includes(screen.id)} onChange={() => togglePermission(screen.id)} />
+                          <span>{t(screen.labelKey)}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <button onClick={savePermissions} className="btn-primary">{t('save')}</button>
+                      <button onClick={() => setEditingPermissionsId(null)} className="btn-secondary">{t('cancel')}</button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             {users.length === 0 && <p className="text-center text-hrr-silver py-4">{t('no_results')}</p>}

@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import { auth, db } from '../config/firebase'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, onSnapshot, setDoc } from 'firebase/firestore'
 
 const AuthContext = createContext()
 
@@ -11,24 +11,36 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser)
-        const snap = await getDoc(doc(db, 'users', firebaseUser.uid))
-        if (snap.exists()) {
-          setUserData({ id: firebaseUser.uid, email: firebaseUser.email, ...snap.data() })
-        } else {
-          const autoData = { name: 'Admin', email: firebaseUser.email, role: 'admin', createdAt: new Date().toISOString() }
-          await setDoc(doc(db, 'users', firebaseUser.uid), autoData)
-          setUserData({ id: firebaseUser.uid, ...autoData })
-        }
-      } else {
+    let userDataUnsubscribe
+    const authUnsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      userDataUnsubscribe?.()
+      if (!firebaseUser) {
         setUser(null)
         setUserData(null)
+        setLoading(false)
+        return
       }
-      setLoading(false)
+      setUser(firebaseUser)
+      setLoading(true)
+      const userRef = doc(db, 'users', firebaseUser.uid)
+      userDataUnsubscribe = onSnapshot(userRef, async (snapshot) => {
+        if (snapshot.exists()) {
+          setUserData({ id: firebaseUser.uid, email: firebaseUser.email, ...snapshot.data() })
+        } else {
+          const autoData = { name: 'Admin', email: firebaseUser.email, role: 'admin', createdAt: new Date().toISOString() }
+          setUserData({ id: firebaseUser.uid, email: firebaseUser.email, ...autoData })
+          await setDoc(userRef, autoData)
+        }
+        setLoading(false)
+      }, (error) => {
+        console.error('Failed to load user permissions:', error)
+        setLoading(false)
+      })
     })
-    return unsub
+    return () => {
+      authUnsubscribe()
+      userDataUnsubscribe?.()
+    }
   }, [])
 
   const login = async (email, password) => {

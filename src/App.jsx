@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth, AuthProvider } from './hooks/useAuth'
 import { StoreAuthProvider } from './hooks/useStoreAuth'
 import Layout from './components/layout/Layout'
@@ -16,9 +17,24 @@ import Store from './components/store/Store'
 import Employees from './components/employees/Employees'
 import Pos from './components/pos/Pos'
 import PurchasesExpenses from './components/accounting/PurchasesExpenses'
+import { SCREEN_PERMISSIONS, canAccessScreen } from './config/screenPermissions'
 import ClientView from './components/client/ClientView'
 import InvoiceView from './components/client/InvoiceView'
 import { Toaster } from 'react-hot-toast'
+
+function ScreenGate({ permission, children }) {
+  const { userData, logout } = useAuth()
+  const { t } = useTranslation()
+  if (canAccessScreen(userData, permission)) return children
+  const firstAllowedScreen = SCREEN_PERMISSIONS.find(screen => canAccessScreen(userData, screen.id))
+  if (firstAllowedScreen) return <Navigate to={firstAllowedScreen.path} replace />
+  return (
+    <main className="min-h-screen bg-hrr-dark p-6 text-center text-white">
+      <p className="mb-4">{t('no_screen_access')}</p>
+      <button onClick={logout} className="btn-secondary">{t('logout')}</button>
+    </main>
+  )
+}
 
 function AdminRoutes() {
   const { user, loading } = useAuth()
@@ -28,27 +44,31 @@ function AdminRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/cars" element={<Cars />} />
-        <Route path="/work-orders" element={<WorkOrders />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/invoices" element={<Invoices />} />
-        <Route path="/pos" element={<Pos />} />
-        <Route path="/purchases-expenses" element={<PurchasesExpenses />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/store-manage" element={<Store />} />
-        <Route path="/employees" element={<Employees />} />
+        <Route path="/" element={<ScreenGate permission="dashboard"><Dashboard /></ScreenGate>} />
+        <Route path="/customers" element={<ScreenGate permission="customers"><Customers /></ScreenGate>} />
+        <Route path="/cars" element={<ScreenGate permission="cars"><Cars /></ScreenGate>} />
+        <Route path="/work-orders" element={<ScreenGate permission="workOrders"><WorkOrders /></ScreenGate>} />
+        <Route path="/inventory" element={<ScreenGate permission="inventory"><Inventory /></ScreenGate>} />
+        <Route path="/invoices" element={<ScreenGate permission="invoices"><Invoices /></ScreenGate>} />
+        <Route path="/pos" element={<ScreenGate permission="pos"><Pos /></ScreenGate>} />
+        <Route path="/purchases-expenses" element={<ScreenGate permission="purchasesExpenses"><PurchasesExpenses /></ScreenGate>} />
+        <Route path="/reports" element={<ScreenGate permission="reports"><Reports /></ScreenGate>} />
+        <Route path="/settings" element={<ScreenGate permission="settings"><Settings /></ScreenGate>} />
+        <Route path="/store-manage" element={<ScreenGate permission="store"><Store /></ScreenGate>} />
+        <Route path="/employees" element={<ScreenGate permission="employees"><Employees /></ScreenGate>} />
       </Route>
     </Routes>
   )
 }
 
 function CashierRoute() {
-  const { user, loading } = useAuth()
+  const { user, userData, loading } = useAuth()
   if (loading) return <div className="min-h-screen bg-hrr-dark flex items-center justify-center text-white text-xl">🏁 HRR Loading...</div>
   if (!user) return <LoginPage />
+  if (!canAccessScreen(userData, 'pos')) {
+    const firstAllowedScreen = SCREEN_PERMISSIONS.find(screen => canAccessScreen(userData, screen.id))
+    return firstAllowedScreen ? <Navigate to={firstAllowedScreen.path} replace /> : <Navigate to="/admin" replace />
+  }
   return <main className="min-h-screen bg-hrr-dark p-4 md:p-6"><Pos /></main>
 }
 
