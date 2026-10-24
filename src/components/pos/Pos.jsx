@@ -372,8 +372,10 @@ export default function Pos() {
                 minimumPrice: Number(item.minSellPrice ?? item.sellPrice) || 0,
                 inventoryId: item.id,
                 stock: Number(item.quantity) || 0,
+                image: item.images?.[0]?.url || item.images?.[0] || '',
               })} disabled={Number(item.quantity) <= 0}
                 className="flex min-h-20 items-center justify-between gap-3 rounded-lg border border-white/10 bg-hrr-gray p-3 text-start transition hover:border-emerald-400/50 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40">
+                {item.images?.[0] && <img src={item.images[0].url || item.images[0]} alt="" className="h-14 w-14 shrink-0 rounded object-cover" />}
                 <span className="min-w-0"><span className="block truncate font-semibold">{item.partName}</span><span className="text-xs text-hrr-silver">{t('pos_stock')}: {item.quantity}</span></span>
                 <span className="shrink-0 text-sm font-bold text-emerald-300">{formatCurrency(item.sellPrice || 0)}</span>
               </button>
@@ -392,7 +394,10 @@ export default function Pos() {
             {cart.map((item, index) => (
               <div key={`${item.inventoryId || item.name}-${index}`} className="border-b border-white/10 pb-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0"><p className="truncate font-semibold">{getLocalizedItemName(item)}</p><p className="text-xs text-hrr-silver">{formatCurrency(item.price)} {t('pos_each')}</p>{item.includedParts?.length > 0 && <p className="mt-1 text-xs text-hrr-silver">{t('pos_includes_parts')}: {item.includedParts.map(part => `${part.name} ×${part.quantity}`).join('، ')}</p>}</div>
+                  <div className="flex min-w-0 items-start gap-2">
+                    {item.image && <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded object-cover" />}
+                    <div className="min-w-0"><p className="truncate font-semibold">{getLocalizedItemName(item)}</p><p className="text-xs text-hrr-silver">{formatCurrency(item.price)} {t('pos_each')}</p>{item.includedParts?.length > 0 && <p className="mt-1 text-xs text-hrr-silver">{t('pos_includes_parts')}: {item.includedParts.map(part => `${part.name} ×${part.quantity}`).join('، ')}</p>}</div>
+                  </div>
                   <button onClick={() => setCart(current => current.filter((_, itemIndex) => itemIndex !== index))} className="p-1 text-red-300" title={t('delete')}><FiTrash2 /></button>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3">
